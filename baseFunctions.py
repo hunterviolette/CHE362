@@ -1,7 +1,5 @@
-from sympy import Eq, solve
+from sympy import Eq, solve, symbols
 import sympy.abc as cnst
-
-import inspect
 import pint
 
 uReg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
@@ -194,7 +192,7 @@ class MassTransfer():
                     L, # characteristic length
                     c, # molarity: mol/volume
                     d_AB, # diffusivity: area/time
-                    k, # mtc: mol/(area*time)
+                    k = cnst.k, # mtc: mol/(area*time)
                     solveFor = cnst.k, # variable to solve for
                     low_mass_transfer: bool = False, # low mass transfer rates
                   ):
@@ -223,6 +221,118 @@ class MassTransfer():
               ):
     
     return Pr / Sc
+  
+  @staticmethod
+  def HenrysLaw(xI: float, # mole fraction of x at interface
+                yI: float, # mole fraction of y at interface
+                He, # Henrys law coefficient (pressure)
+                p # Total pressure
+              ):
+    
+    # ABSORPTION
+    # Gasses dissolved in water and diulte, and non-ideal solutions
+    return Eq((He / p) * xI, yI) # cnst.[x,y] mole fractions at interface 
+
+  def RaoultsLaw(xI: float, # mole fraction of x at interface
+                yI: float, # mole fraction of y at interface
+                vpA, # vapor pressure of A
+                p, # Total Pressure
+                gamma = 1, # Activity coefficient methods
+                idealSolution: bool = True
+              ):
+    
+    # DISTILLATION
+    # Ideal solutions
+    if idealSolution:
+      eq = Eq((vpA / p) * xI, yI)
+    else:
+      if gamma == 1:
+        raise Exception('Solution is non-Ideal and gamma is default value')
+      else:
+        eq = Eq(((gamma * vpA) / p) * xI, yI)
+
+    return eq
+
+  @staticmethod
+  def Solve_MoleFracInterface(eq2,
+                              xB: float,
+                              yB: float,
+                              kX,
+                              kY
+                            ):
+    
+    if type(eq2) != 'sympy.core.relational.Equality':
+      raise Exception('Equation 2 is not the right class') 
+    
+    xI, yI = symbols('xI'), symbols('yI')
+    soln = solve((
+                  Eq(kY * (yB - yI), kX * (xI - xB)),
+                  eq2),
+                (xI, yI))
+    print(soln)
+    return soln
+
+  @staticmethod
+  def FluxBetweenPhases(xxI: float, # mole frac of phase at interface
+                        xxB: float, # mole frac of phase at bulk
+                        k, # mtc of phase
+                        phase: str = 'x' 
+                      ):
+    
+    if phase not in ['x', 'y']:
+      raise Exception("Invalid phase option: x or y")
+
+    if phase == 'x':
+      nA = k * (xxI - xxB)
+      otherPhase = 'y'
+    else:
+      nA = k * (xxB - xxI)
+      otherPhase = 'x'
+
+    print(f'Flux from {otherPhase} to {phase}: {nA}')
+    return nA
+
+  @staticmethod
+  def PhaseResistance(k,
+                      bigK,
+                      phase: str = 'x'
+                    ):
+    
+    pR = (1 / k) / (1 / bigK)
+
+    print(f'Phase resistance for {phase} phase: {round(pR, 3)}')
+    return pR
+  
+  @staticmethod
+  def SOLVE_OMTC(kX, # mtc in x phase
+                kY, # mtc in y phase
+                He, # Henrys law coefficient
+                p, # Total pressure
+                oK, # Overall MTC for a phase
+                solveFor, # input var being solved
+                phase: str = 'x'):
+    
+    if phase not in ['x', 'y']:
+      raise Exception("Invalid phase option: x or y")
+    
+    m = He / p
+
+    if phase == 'x':
+      soln = solve(Eq((1 / kX) + (1 / (m * kY)), 1 / oK), solveFor)
+    else:
+      soln = solve(Eq((1 / kY) + (m / kX), 1 / oK), solveFor)
+    
+    print(f'Overall MTC for {phase} phase: {soln} ')
+    return soln
+
+  @staticmethod
+  def VerifyPhaseResistances(xPR, yPR):
+    
+    one = xPR + yPR
+    if one != 1:
+      raise Exception("Resistaance between phases doesn't balance")
+    else:
+      print(f"Phase resistance sum is 1")
 
 if __name__ == "__main__":
   b = MassTransfer()
