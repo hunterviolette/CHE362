@@ -4,7 +4,6 @@ from sympy.physics.units import cm, atm, m, molar_gas_constant, \
     kelvin, second, mol, gram, kilogram
 
 from sympy import Eq, symbols
-import sympy.abc as cnst
 from baseFunctions import MassTransfer, Diffusion
 
 uReg = UnitRegistry(autoconvert_offset_to_baseunit = True)

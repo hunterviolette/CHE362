@@ -1,4 +1,6 @@
 from sympy import Eq, solve, symbols
+from sympy.physics.units.util import convert_to
+from sympy.physics.units import mol, m, second
 import sympy.abc as cnst
 import pint
 
@@ -202,7 +204,7 @@ class MassTransfer():
     else:
       soln = solve(Eq((k * L) / (c * d_AB), Sh), solveFor)
 
-    print(f'Mass transfer coefficient: {soln[0]}')
+    print(f'Mass transfer coefficient: {convert_to(soln[0], mol / (m**2 * second))}')
     return soln
   
   @staticmethod
