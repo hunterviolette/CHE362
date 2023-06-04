@@ -147,7 +147,7 @@ class HW3(MassTransfer, Diffusion):
     d_AB = q(HW3.WilkeChangDiffusivity(298, # temperature in K
                           15.999 + 2, # molecular weight of B in g/mol
                           viscosity.magnitude, # viscosity of B in cp 
-                          111.4, # molar volume of A at normal boiling in cm**3/mol 
+                          118.5, # molar volume of A at normal boiling in cm**3/mol 
                           2.6 # association factor ??
                         ), 'cm**2/s')
 
