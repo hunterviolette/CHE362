@@ -223,8 +223,8 @@ class MassTransfer():
     return Pr / Sc
   
   @staticmethod
-  def HenrysLaw(xI: float, # mole fraction of x at interface
-                yI: float, # mole fraction of y at interface
+  def HenrysLaw(xI, # mole fraction of x at interface
+                yI, # mole fraction of y at interface
                 He, # Henrys law coefficient (pressure)
                 p # Total pressure
               ):
@@ -261,16 +261,15 @@ class MassTransfer():
                               kY
                             ):
     
-    if type(eq2) != 'sympy.core.relational.Equality':
-      raise Exception('Equation 2 is not the right class') 
-    
     xI, yI = symbols('xI'), symbols('yI')
     soln = solve((
                   Eq(kY * (yB - yI), kX * (xI - xB)),
                   eq2),
                 (xI, yI))
-    print(soln)
-    return soln
+    
+    xI, yI = soln[xI], soln[yI] 
+    print(f'Mole fraction of [x,y] at the interface [{xI}, {yI}]')
+    return [xI, yI]
 
   @staticmethod
   def FluxBetweenPhases(xxI: float, # mole frac of phase at interface
@@ -289,50 +288,57 @@ class MassTransfer():
       nA = k * (xxB - xxI)
       otherPhase = 'x'
 
-    print(f'Flux from {otherPhase} to {phase}: {nA}')
+    print(f'Flux from {otherPhase} to {phase} phase: {nA}')
     return nA
 
   @staticmethod
-  def PhaseResistance(k,
-                      bigK,
-                      phase: str = 'x'
-                    ):
-    
-    pR = (1 / k) / (1 / bigK)
-
-    print(f'Phase resistance for {phase} phase: {round(pR, 3)}')
-    return pR
-  
-  @staticmethod
-  def SOLVE_OMTC(kX, # mtc in x phase
+  def SOLVE_OVERALL_MTC(kX, # mtc in x phase
                 kY, # mtc in y phase
                 He, # Henrys law coefficient
                 p, # Total pressure
                 oK, # Overall MTC for a phase
                 solveFor, # input var being solved
-                phase: str = 'x'):
-    
-    if phase not in ['x', 'y']:
-      raise Exception("Invalid phase option: x or y")
+              ):
     
     m = He / p
 
-    if phase == 'x':
-      soln = solve(Eq((1 / kX) + (1 / (m * kY)), 1 / oK), solveFor)
-    else:
-      soln = solve(Eq((1 / kY) + (m / kX), 1 / oK), solveFor)
-    
-    print(f'Overall MTC for {phase} phase: {soln} ')
-    return soln
+    res = []
+    for phase in ['x', 'y']:
+      if phase == 'x':
+        soln = solve(Eq((1 / kX) + (1 / (m * kY)), 1 / oK), solveFor)
+      else:
+        soln = solve(Eq((1 / kY) + (m / kX), 1 / oK), solveFor)
+      
+      print(f'Overall MTC for {phase} phase: {soln[0]} ')
+      res.append(soln[0])
+
+    return res[0], res[1]
 
   @staticmethod
-  def VerifyPhaseResistances(xPR, yPR):
+  def PhaseResistances(
+                    kX,
+                    bigKX,
+                    kY,
+                    bigKY,
+                    ):
     
-    one = xPR + yPR
+    res = []
+    for phase in ['x', 'y']:
+      if phase == 'x':
+        k, bigK = kX, bigKX
+      else:
+        k, bigK = kY, bigKY
+
+      pR = (1 / k) / (1 / bigK)
+
+      print(f'Phase resistance for {phase} phase: {round(pR, 8)}')
+      res.append(pR)
+
+    one = res[0] + res[1]
     if one != 1:
-      raise Exception("Resistaance between phases doesn't balance")
+      raise Exception(f"Total resistance does not add to one: {one}")
     else:
-      print(f"Phase resistance sum is 1")
+      print(f"Total phase resistance sums to: {one}")
 
 if __name__ == "__main__":
   b = MassTransfer()
