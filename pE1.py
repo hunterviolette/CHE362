@@ -28,9 +28,7 @@ class PE1(MassTransfer, Diffusion):
 
     print('==== Problem 1 ====')
     print('==== GAS CALCULATIONS ====')
-    # density and viscosity of N2 at 298K 
     d_AB = q(2.10 * 10**-5, 'm**2/s').to('cm**2/s') 
-
 
     Sh = 10
     print(f"Sherwood Number: {Sh}")
@@ -49,7 +47,6 @@ class PE1(MassTransfer, Diffusion):
                   )
 
     print('==== Liquid CALCULATIONS ====')
-    # density and viscosity of water at 298K 
     viscosity = q(9.227 * 10**-4, 'kg/(m*s)') 
     density = q(1000, 'kg/m**3') 
     d_AB = q(2.10 * 10**-9, 'm**2/s').to('cm**2/s') 
@@ -90,8 +87,8 @@ class PE1(MassTransfer, Diffusion):
 
     xI, yI = PE1.Solve_MoleFracInterface(
                               PE1.HenrysLaw(
-                                          xI = symbols('xI'),
-                                          yI = symbols('yI'),
+                                          xI = symbols('xI'), # xI variable is currently unknown
+                                          yI = symbols('yI'), # yI variable is currently unknown
                                           He = He,
                                           p = p
                                         ),
@@ -102,8 +99,8 @@ class PE1(MassTransfer, Diffusion):
                             )
     
     nAX = PE1.FluxBetweenPhases(
-                              xxI = xI,
-                              xxB= xB,
+                              xxI = xI, # mole fraction at interface of phase
+                              xxB= xB, # mole fraction at bulk of phase
                               k = kX,
                               phase = 'x'
                             ) 
@@ -113,8 +110,8 @@ class PE1(MassTransfer, Diffusion):
                           kY,
                           He,
                           p,
-                          symbols('oK'),
-                          symbols('oK'),
+                          symbols('oMTC'), # oMTC variable is currently unknown
+                          symbols('oMTC'), # solving equation for oMTC 
                         )
 
     PE1.PhaseResistances(

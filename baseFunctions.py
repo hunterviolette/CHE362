@@ -205,7 +205,7 @@ class MassTransfer():
       soln = solve(Eq((k * L) / (c * d_AB), Sh), solveFor)
 
     print(f'Mass transfer coefficient: {convert_to(soln[0], mol / (m**2 * second))}')
-    return soln
+    return soln[0]
   
   @staticmethod
   def SchmidtNumber(mu: pint.Quantity,
@@ -233,18 +233,20 @@ class MassTransfer():
     
     # ABSORPTION
     # Gasses dissolved in water and diulte, and non-ideal solutions
+    print('====  Henrys law to solve mole fractions at interface ====')
     return Eq((He / p) * xI, yI) # cnst.[x,y] mole fractions at interface 
 
   def RaoultsLaw(xI: float, # mole fraction of x at interface
                 yI: float, # mole fraction of y at interface
                 vpA, # vapor pressure of A
                 p, # Total Pressure
-                gamma = 1, # Activity coefficient methods
-                idealSolution: bool = True
+                gamma: float = 1, # Activity coefficient methods
+                idealSolution: bool = False
               ):
     
     # DISTILLATION
     # Ideal solutions
+    print('==== Raoults law to solve mole fractions at interface ====')
     if idealSolution:
       eq = Eq((vpA / p) * xI, yI)
     else:
@@ -264,9 +266,11 @@ class MassTransfer():
                             ):
     
     xI, yI = symbols('xI'), symbols('yI')
+
     soln = solve((
                   Eq(kY * (yB - yI), kX * (xI - xB)),
-                  eq2),
+                  eq2
+                ),
                 (xI, yI))
     
     xI, yI = soln[xI], soln[yI] 
@@ -337,7 +341,7 @@ class MassTransfer():
       res.append(pR)
 
     one = res[0] + res[1]
-    if one != 1:
+    if round(one, 4) != 1:
       raise Exception(f"Total resistance does not add to one: {one}")
     else:
       print(f"Total phase resistance sums to: {one}")
