@@ -73,36 +73,21 @@ class HW4(MassTransfer, Diffusion):
                               kY, # mtc of phase y
                             )
     
-    nAX = HW4.FluxBetweenPhases(
-                              xxI = xI,
-                              xxB= xB,
-                              k = kX,
-                              phase = 'x'
-                            ) 
-    
-    nAY = HW4.FluxBetweenPhases(
-                              xxI = yI,
-                              xxB= yB,
-                              k = kY,
-                              phase = 'y'
-                            ) 
+    nAX, nAY = HW4.FluxBetweenPhases(xB, xI, yB, yI, kX, kY) 
 
-    He = (yI / xI) * p  
     oKX, oKY = HW4.SOLVE_OVERALL_MTC(
                           kX,
                           kY,
-                          He,
-                          p,
+                          HW4.Slope_OMTC(vpA, p,
+                                          lawUsed='raoults',
+                                          idealSolution=False,
+                                          gamma=1.725
+                                        ),
                           symbols('oK'),
                           symbols('oK'),
                         )
 
-    HW4.PhaseResistances(
-                      kX,
-                      oKX,
-                      kY,
-                      oKY
-                    )
+    HW4.PhaseResistances(kX, oKX, kY, oKY)
 
   @staticmethod
   def Three():

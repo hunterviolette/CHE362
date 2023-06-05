@@ -8,7 +8,6 @@ uReg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
 q  = uReg.Quantity
 
-
 class Diffusion():
 
   @staticmethod
@@ -236,6 +235,7 @@ class MassTransfer():
     print('====  Henrys law to solve mole fractions at interface ====')
     return Eq((He / p) * xI, yI) # cnst.[x,y] mole fractions at interface 
 
+  @staticmethod
   def RaoultsLaw(xI: float, # mole fraction of x at interface
                 yI: float, # mole fraction of y at interface
                 vpA, # vapor pressure of A
@@ -278,36 +278,58 @@ class MassTransfer():
     return [xI, yI]
 
   @staticmethod
-  def FluxBetweenPhases(xxI: float, # mole frac of phase at interface
-                        xxB: float, # mole frac of phase at bulk
-                        k, # mtc of phase
-                        phase: str = 'x' 
+  def FluxBetweenPhases(xB: float,
+                        xI: float,
+                        yB: float,
+                        yI: float,
+                        kX,
+                        kY
                       ):
+    res = []
+    for phase in ['x', 'y']:
+
+      if phase == 'x':
+        nA = kX * (xI - xB)
+        otherPhase = 'y'
+      else:
+        nA = kY * (yB - yI)
+        otherPhase = 'x'
+
+      print(f'Flux from {otherPhase} to {phase} phase: {nA}')
+      res.append(nA)
+
+    return res[0], res[1]
+
+  @staticmethod
+  def Slope_OMTC(
+                He_or_vpA, # Henry coefficient (henrys) or vapor pressure of A (raoults)
+                p, # total pressure
+                lawUsed: str = 'henrys', # henrys or raoults 
+                idealSolution: bool = True, # If raoults law, if solution is ideal
+                gamma: float = 1.0, # Activity coefficient            
+              ):
     
-    if phase not in ['x', 'y']:
-      raise Exception("Invalid phase option: x or y")
+    if lawUsed.lower() == 'henrys' or \
+      (lawUsed.lower() == 'raoults' and idealSolution):
+        
+        m = He_or_vpA / p
 
-    if phase == 'x':
-      nA = k * (xxI - xxB)
-      otherPhase = 'y'
+    elif lawUsed.lower() == 'raoults' and not idealSolution:
+        m = (He_or_vpA / p) * gamma 
     else:
-      nA = k * (xxB - xxI)
-      otherPhase = 'x'
+      raise Exception('LawUsed: invalid input, law not found')
 
-    print(f'Flux from {otherPhase} to {phase} phase: {nA}')
-    return nA
+    print(f"Slope of overall mass transfer coefficient, m: {m} ")
+    return m
 
   @staticmethod
   def SOLVE_OVERALL_MTC(kX, # mtc in x phase
                 kY, # mtc in y phase
-                He, # Henrys law coefficient
-                p, # Total pressure
+                m, # slope 
                 oK, # Overall MTC for a phase
                 solveFor, # input var being solved
               ):
     
-    m = He / p
-
     res = []
     for phase in ['x', 'y']:
       if phase == 'x':
@@ -346,7 +368,43 @@ class MassTransfer():
     else:
       print(f"Total phase resistance sums to: {one}")
 
+class SeparationProcesses():
+  
+  def CoCurrent_MoleFrac(x1, x2, y1, y2, L1, L2, V1, V2):
+    return (Eq(L1 * x1) + (V1 * y1), (L2 * x2) + (V2 * y2))
+  
+  def Cocurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs):
+    return Eq((Ls * X1) + (Vs * Y1), (Ls * X2) + (Vs * Y2))
+  
+  def CountCurrent_MoleFrac(x1, x2, y1, y2, L1, L2, V1, V2):
+    return Eq((x1 * L1) + (y2 * V2), (x2 * L2) + (y1 * V1)) 
+  
+  def CountCurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs):
+    return Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs))
+  
+  @staticmethod
+  def CapZ(value: float, component: str = 'x0'):
+    res = value / (1 - value)
+    print(f"{component.upper()} value is: {res}")
+    return res
+    
+  @staticmethod
+  def Solve_Eqns(stream: str,
+                X1, X2, Y1, Y2, Ls, Vs):
+    
+    if stream == 'cocurrent':
+      eq = SeparationProcesses.Cocurrent_MoleRatio(
+                          X1, X2, Y1, Y2, Ls, Vs)
+    
+    elif stream == 'countercurrent':
+      eq = SeparationProcesses.CountCurrent_MoleRatio(
+                    X1, X2, Y1, Y2, Ls, Vs)
+
 if __name__ == "__main__":
+  s = SeparationProcesses()
+  s.CapZ(.1)
+  
+  '''
   b = MassTransfer()
   
   reg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
@@ -360,7 +418,7 @@ if __name__ == "__main__":
                     v = q(10, 'm/s'),
                     mu = q(.95, 'kg/(m*s)')
                   )
-  print(re)
+  print(re)'''
 
   '''
   d_AB = b.FullerDiffusivity(1, # pressure in atmospheres

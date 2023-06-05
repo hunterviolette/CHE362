@@ -98,18 +98,12 @@ class PE1(MassTransfer, Diffusion):
                               kY, # mtc of phase y
                             )
     
-    nAX = PE1.FluxBetweenPhases(
-                              xxI = xI, # mole fraction at interface of phase
-                              xxB= xB, # mole fraction at bulk of phase
-                              k = kX,
-                              phase = 'x'
-                            ) 
+    nAX, nAY = PE1.FluxBetweenPhases(xB, xI, yB, yI, kX, kY) 
 
     oKX, oKY = PE1.SOLVE_OVERALL_MTC(
                           kX,
                           kY,
-                          He,
-                          p,
+                          PE1.Slope_OMTC(He, p),
                           symbols('oMTC'), # oMTC variable is currently unknown
                           symbols('oMTC'), # solving equation for oMTC 
                         )
