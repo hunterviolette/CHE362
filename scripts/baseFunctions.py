@@ -371,22 +371,26 @@ class MassTransfer():
 
 class SeparationProcesses():
   
+  @staticmethod
   def CoCurrent_MoleFrac(x1, x2, y1, y2, L1, L2, V1, V2):
     return (Eq(L1 * x1) + (V1 * y1), (L2 * x2) + (V2 * y2))
   
-  def Cocurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs, solveFor):
-    return solve(Eq((Ls * X1) + (Vs * Y1), (Ls * X2) + (Vs * Y2), solveFor))
+  @staticmethod
+  def Cocurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs):
+    return Eq((Ls * X1) + (Vs * Y1), (Ls * X2) + (Vs * Y2))
   
+  @staticmethod
   def CountCurrent_MoleFrac(x1, x2, y1, y2, L1, L2, V1, V2):
     return Eq((x1 * L1) + (y2 * V2), (x2 * L2) + (y1 * V1)) 
   
-  def CountCurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs, solveFor):
-    return solve(Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs)), solveFor)
+  @staticmethod
+  def CountCurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs):
+    return Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs))
   
   @staticmethod
-  def CapZ(value: float, component: str = 'x0'):
+  def CapXY(value: float, component: str = 'x0'):
     res = value / (1 - value)
-    print(f"{component.upper()} value is: {res}")
+    #print(f"{component.upper()} value is: {res}")
     return res
     
   @staticmethod
@@ -418,6 +422,9 @@ class SeparationProcesses():
       process = 'stripping'
       
     print(f"Kremser Equation - [number_stages, process]: [{numStages}, {process}]")
+
+class CHE362(Diffusion, MassTransfer, SeparationProcesses):
+  pass
 
 if __name__ == "__main__":
   s = SeparationProcesses()

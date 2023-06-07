@@ -1,16 +1,25 @@
 from pint import UnitRegistry
 from sympy.physics.units.util import convert_to
-from sympy.physics.units import cm, atm, m, molar_gas_constant, \
-    kelvin, second, mol, gram, kilogram, mmHg
-
 from sympy import Eq, symbols
-from baseFunctions import MassTransfer, Diffusion
+from sympy.physics.units import cm, atm, m, molar_gas_constant, \
+    kelvin, second, mol, gram, kilogram, mmHg, mol, hour
+from numpy import arange
+
+import plotly_express as px
+import pandas as pd
+
+#px.defaults.template = "plotly_dark"
+#px.defaults.color_continuous_scale = px.colors.sequential.Blackbody
+
+from baseFunctions import CHE362
+
+
 
 uReg = UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
 q  = uReg.Quantity
 
-class HW4(MassTransfer, Diffusion):
+class HW4(CHE362):
   
   @staticmethod
   def One():
@@ -90,6 +99,27 @@ class HW4(MassTransfer, Diffusion):
     HW4.PhaseResistances(kX, oKX, kY, oKY)
 
   @staticmethod
+  def Two():
+    kmol = 10**3 * mol
+
+    # cocurrent absorber 
+    y0, y1 = .02, .001 # [2%, 0.1%] MeOH
+    vp, p = 1 * atm, 2 * atm
+    v = 100 * kmol / hour # Total flow rate of extract stream
+    vS = v * (1 - y0)
+    print(vS)
+
+    df = pd.DataFrame()
+    for x in arange(0, 1, .01):
+      y = float((vp / p) * x)
+      capX, capY = HW4.CapXY(x, f'x_{x}'), HW4.CapXY(y, f'y_{x}')
+      df = pd.concat([df, pd.DataFrame({"x":[x], "y":[y], "X":[capX], "Y":[capY]}
+                                    )], ignore_index=True)
+      
+    print(df)
+    px.line(data_frame=df, x='X', y='Y').show()
+
+  @staticmethod
   def Three():
     xB, yB = 1 * 10**-6, 0.2
     kX = 1.5 * (mol / (m**2 * second))
@@ -134,4 +164,4 @@ class HW4(MassTransfer, Diffusion):
 
 
 h = HW4()
-h.One()
+h.Two()
