@@ -3,6 +3,7 @@ from sympy.physics.units.util import convert_to
 from sympy.physics.units import mol, m, second
 import sympy.abc as cnst
 import pint
+from math import log
 
 uReg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
@@ -373,14 +374,14 @@ class SeparationProcesses():
   def CoCurrent_MoleFrac(x1, x2, y1, y2, L1, L2, V1, V2):
     return (Eq(L1 * x1) + (V1 * y1), (L2 * x2) + (V2 * y2))
   
-  def Cocurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs):
-    return Eq((Ls * X1) + (Vs * Y1), (Ls * X2) + (Vs * Y2))
+  def Cocurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs, solveFor):
+    return solve(Eq((Ls * X1) + (Vs * Y1), (Ls * X2) + (Vs * Y2), solveFor))
   
   def CountCurrent_MoleFrac(x1, x2, y1, y2, L1, L2, V1, V2):
     return Eq((x1 * L1) + (y2 * V2), (x2 * L2) + (y1 * V1)) 
   
-  def CountCurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs):
-    return Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs))
+  def CountCurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs, solveFor):
+    return solve(Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs)), solveFor)
   
   @staticmethod
   def CapZ(value: float, component: str = 'x0'):
@@ -389,20 +390,37 @@ class SeparationProcesses():
     return res
     
   @staticmethod
-  def Solve_Eqns(stream: str,
-                X1, X2, Y1, Y2, Ls, Vs):
-    
+  def Solve_MaterialBal_Streams(stream: str,
+                X1, X2, Y1, Y2, Ls, Vs, solveFor):
+    6
     if stream == 'cocurrent':
-      eq = SeparationProcesses.Cocurrent_MoleRatio(
-                          X1, X2, Y1, Y2, Ls, Vs)
+      res = SeparationProcesses.Cocurrent_MoleRatio(
+                    X1, X2, Y1, Y2, Ls, Vs, solveFor)
     
     elif stream == 'countercurrent':
-      eq = SeparationProcesses.CountCurrent_MoleRatio(
-                    X1, X2, Y1, Y2, Ls, Vs)
+      res = SeparationProcesses.CountCurrent_MoleRatio(
+                    X1, X2, Y1, Y2, Ls, Vs, solveFor)
+      
+    print(f"{stream} stream solved for [variable, value]: [{solveFor}, {res}]")
+    return res
+
+  @staticmethod
+  def KremserEquation(xN: float, yN: float, x0: float, y1: float, m: float,
+            krem_factor: float, # absorption or stripping factor 
+            absorption: bool = True, # False == stripping
+                    ):
+    if absorption:
+      numStages = log((yN - (m* x0) / (y1 - (m * x0))) * (1 - (1 / krem_factor) + (1 / krem_factor))) / log(krem_factor)
+      process = 'absorption'
+       
+    else:
+      numStages = log((x0 - (yN / m) / (xN - yN)) * (1 - (1 / krem_factor) + (1 / krem_factor))) / log(krem_factor)
+      process = 'stripping'
+      
+    print(f"Kremser Equation - [number_stages, process]: [{numStages}, {process}]")
 
 if __name__ == "__main__":
   s = SeparationProcesses()
-  s.CapZ(.1)
   
   '''
   b = MassTransfer()
@@ -448,3 +466,4 @@ if __name__ == "__main__":
   
   print(mVol_at_t * sTension_at_t**(1/4))
   '''
+  
