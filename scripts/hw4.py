@@ -10,12 +10,7 @@ import plotly.graph_objects as go
 import plotly_express as px
 import pandas as pd
 
-#px.defaults.template = "plotly_dark"
-#px.defaults.color_continuous_scale = px.colors.sequential.Blackbody
-
 from baseFunctions import CHE362
-
-
 
 uReg = UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
@@ -126,7 +121,8 @@ class HW4(CHE362):
                                   solveFor = symbols('Ls')
                                 )
     
-    line1 = pd.DataFrame({"X": [X1, X2], "Y":[Y1, Y2]}).astype(float)
+    lines = []
+    lines.append(pd.DataFrame({"X": [X1, X2], "Y":[Y1, Y2]}).astype(float))
 
 
     print('==== Part d ====')
@@ -139,7 +135,7 @@ class HW4(CHE362):
                                   Vs = Vs, 
                                   solveFor = symbols('Xn'),
                                 )
-    line2 = pd.DataFrame({"X": [X1, Xn_2Ls], "Y":[Y1, Y2]}).astype(float)
+    lines.append(pd.DataFrame({"X": [X1, Xn_2Ls], "Y":[Y1, Y2]}).astype(float))
     
     print('==== Part e ====')
     Xn_1_4Ls = HW4.Solve_MaterialBal_Streams('cocurrent', 
@@ -151,45 +147,16 @@ class HW4(CHE362):
                                   Vs = Vs, 
                                   solveFor = symbols('Xn'),
                                 )
-    line3 = pd.DataFrame({"X": [X1, Xn_1_4Ls], "Y":[Y1, Y2]}).astype(float)
+    lines.append(pd.DataFrame({"X": [X1, Xn_1_4Ls], "Y":[Y1, Y2]}).astype(float))
 
+    fig = HW4.EquilibriumDiagram(vp, p,
+            xStep = .0005, yStep = .005, # Formatting Figure tickmarks
+            xRange = [0, .005], yRange = [0, .026],  # Formatting Figure axis range
+            dataGen = [0, .5, .001], # Generate Equilibrium diagram data [startingValue, EndValue, StepValue]
+            gamma = gamma
+        )
     
-    def Graph(plot: bool = False, lines: list = []):
-      
-      df = pd.DataFrame()
-      for x in arange(0, .5, .001):
-        y = float(((vp * gamma) / p) * x)
-        capX, capY = HW4.CapXY(x, f'x_{x}'), HW4.CapXY(y, f'y_{x}')
-        df = pd.concat([df, pd.DataFrame({"x":[x], "y":[y], "X":[capX], "Y":[capY]}
-                                      )], ignore_index=True)
-        
-      print('==== Plot data ====')
-      df = df[(df["X"] < .03) & (df["Y"] < .03)]
-      if plot:
-        fig = px.line(data_frame=df, x='X', y='Y')
-        fig.update_layout(
-            xaxis=dict(
-                tickmode='linear',
-                dtick=0.0005,
-                range=[0, .005]
-              ),
-            yaxis=dict(
-                tickmode='linear',
-                dtick=0.001,
-                range=[0, .026]
-              ),
-            template='plotly_dark'
-            )
-        
-        if lines:
-          for i, x in enumerate(lines):
-            fig.add_trace(go.Scatter(x=x['X'], y=x['Y'], name=f"line{i}", 
-                          marker=dict(color=tuple(random(size=3) * 256) , size=12, 
-                                      line=dict(width=1))))
-            
-        fig.show()
-
-    Graph(True, [line1, line2, line3])
+    fig = HW4.PlotLines(fig, lines).show()
 
   @staticmethod
   def Three():

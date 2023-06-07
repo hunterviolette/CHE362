@@ -5,6 +5,13 @@ import sympy.abc as cnst
 import pint
 from math import log
 
+from numpy import arange
+from numpy.random import random
+
+import plotly.graph_objects as go
+import plotly_express as px
+import pandas as pd
+
 uReg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
 q  = uReg.Quantity
@@ -376,36 +383,35 @@ class SeparationProcesses():
     return (Eq(L1 * x1) + (V1 * y1), (L2 * x2) + (V2 * y2))
   
   @staticmethod
-  def Cocurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs):
-    return Eq((Ls * X1) + (Vs * Y1), (Ls * X2) + (Vs * Y2))
-  
-  @staticmethod
   def CountCurrent_MoleFrac(x1, x2, y1, y2, L1, L2, V1, V2):
     return Eq((x1 * L1) + (y2 * V2), (x2 * L2) + (y1 * V1)) 
+
+  @staticmethod
+  def CapXY(value: float):
+    return value / (1 - value)
   
   @staticmethod
-  def CountCurrent_MoleRatio(X1, X2, Y1, Y2, Ls, Vs):
-    return Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs))
-  
-  @staticmethod
-  def CapXY(value: float, component: str = 'x0'):
-    res = value / (1 - value)
-    #print(f"{component.upper()} value is: {res}")
-    return res
+  def Solve_EquilibRelationship(vp, p, xn, yn, solveFor, gamma: float = 1):
+    return solve(Eq(((gamma * vp) / p) * xn, yn), solveFor)[0]
     
   @staticmethod
   def Solve_MaterialBal_Streams(stream: str,
-                X1, X2, Y1, Y2, Ls, Vs, solveFor):
-    6
+                X1, X2, Y1, Y2, Ls, Vs, solveFor, ndigits: int = 3):
+
+    strNames = ["X0", "Xn", "Y0", "Yn", "Ls", "Vs"]
+    for i, x in enumerate([X1, X2, Y1, Y2, Ls, Vs]):
+      try: 
+          print(f"{strNames[i]}: {round(x, ndigits)}")
+      except:
+          print(f"{strNames[i]}: {x}")
+
     if stream == 'cocurrent':
-      res = SeparationProcesses.Cocurrent_MoleRatio(
-                    X1, X2, Y1, Y2, Ls, Vs, solveFor)
+      res = solve(Eq((Y2 - Y1) / (X2 - X1), -1*(Ls / Vs)), solveFor)[0]
     
     elif stream == 'countercurrent':
-      res = SeparationProcesses.CountCurrent_MoleRatio(
-                    X1, X2, Y1, Y2, Ls, Vs, solveFor)
+      res = solve(Eq((Y2 - Y1) / (X2 - X1), (Ls / Vs)), solveFor)[0]
       
-    print(f"{stream} stream solved for [variable, value]: [{solveFor}, {res}]")
+    print(f"{stream} stream solved for {solveFor}: {res}")
     return res
 
   @staticmethod
@@ -416,14 +422,59 @@ class SeparationProcesses():
     if absorption:
       numStages = log((yN - (m* x0) / (y1 - (m * x0))) * (1 - (1 / krem_factor) + (1 / krem_factor))) / log(krem_factor)
       process = 'absorption'
-       
+    
     else:
       numStages = log((x0 - (yN / m) / (xN - yN)) * (1 - (1 / krem_factor) + (1 / krem_factor))) / log(krem_factor)
       process = 'stripping'
       
     print(f"Kremser Equation - [number_stages, process]: [{numStages}, {process}]")
 
-class CHE362(Diffusion, MassTransfer, SeparationProcesses):
+class Util(SeparationProcesses):
+
+  @staticmethod
+  def EquilibriumDiagram(vp, p, 
+                        xStep: float, yStep: float, # Formatting Figure tickmarks
+                        xRange: list, yRange: list,  # Formatting Figure axis range
+                        dataGen: list, # [startingValue, EndValue, StepValue]
+                        gamma: float = 1
+                      ):
+    
+    df = pd.DataFrame()
+    for x in arange(dataGen[0], dataGen[1], dataGen[2]): 
+      y = float(((vp * gamma) / p) * x)
+      df = pd.concat([df, pd.DataFrame({"x":[x], "y":[y], 
+                                        "X":[Util.CapXY(x)], "Y":[Util.CapXY(y)
+                                      ]}
+                                    )], ignore_index=True)
+      
+    fig = px.line(data_frame=df, x='X', y='Y')
+    fig.update_layout(
+              xaxis=dict(
+                  tickmode='linear',
+                  dtick=xStep,
+                  range=xRange
+                ),
+              yaxis=dict(
+                  tickmode='linear',
+                  dtick=yStep,
+                  range=yRange,
+                ),
+              template='plotly_dark'
+            )
+    
+    return fig
+  
+  @staticmethod
+  def PlotLines(fig, lines: list = []):
+    if lines:
+      for i, x in enumerate(lines):
+        fig.add_trace(go.Scatter(x=x['X'], y=x['Y'], name=f"line{i}", 
+                      marker=dict(color=tuple(random(size=3) * 256) , size=12, 
+                                  line=dict(width=1))))
+
+    return fig
+
+class CHE362(Diffusion, MassTransfer, Util):
   pass
 
 if __name__ == "__main__":
