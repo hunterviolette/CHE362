@@ -74,4 +74,8 @@ class HW5(CHE362):
                             Ls = abs(Ls), Vs = abs(Vs), absorption=True, y1 = Y1,
                         )
 
-h = HW5().One()
+    @staticmethod
+    def Two():
+        pass
+
+h = HW5().Two()

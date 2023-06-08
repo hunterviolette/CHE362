@@ -405,15 +405,16 @@ class SeparationProcesses():
                       m: float, Ls, Vs, 
                       absorption: bool = True, # False == stripping
                       xN: float = 0, # xN needed for stripping
-                      yN: float = 0 # y1 only needed if absorbing
+                      yN: float = 0, # y1 only needed if absorbing
                       # Absorption (V -> L), Stripping (L -> V)
+                      ndig: int = 4
                     ):
+    
     
     a_ = (Ls / Vs) / m
     if absorption:
+      print(f"Kremer Inputs: x0: {x0}, y1: {y1}, yN: {yN}, m: {m}")
       process = 'absorption'
-      print(yN, x0, y1, m, Ls, Vs)
-
       numStages = log(
                       (y1 - (m * x0)) / (yN - (m * x0)) *
                       (1 - (1 / a_)) + (1 / a_)
@@ -435,8 +436,8 @@ class Util(SeparationProcesses):
 
   @staticmethod
   def EquilibriumDiagram(vp, p, 
-                        xStep: float, yStep: float, # Formatting Figure tickmarks
-                        xRange: list, yRange: list,  # Formatting Figure axis range
+                        xStep: float, yStep: float, # axis Formatting Figure tickmarks
+                        xRange: list, yRange: list,  # axis Formatting Figure axis range
                         dataGen: list, # [startingValue, EndValue, StepValue]
                         gamma: float = 1
                       ):
