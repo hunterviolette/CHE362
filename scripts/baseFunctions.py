@@ -380,19 +380,25 @@ class SeparationProcesses():
   def Solve_MaterialBal_Streams(stream: str,
                 X1, X2, Y1, Y2, Ls, Vs, solveFor, ndigits: int = 3):
 
+    vars = []
     strNames = ["X0", "Xn", "Y0", "Yn", "Ls", "Vs"]
     for i, x in enumerate([X1, X2, Y1, Y2, Ls, Vs]):
       try: 
-          print(f"{strNames[i]}: {round(x, ndigits)}")
+          vars.append(f"{strNames[i]}: {round(x, ndigits)}")
       except:
-          print(f"{strNames[i]}: {x}")
+          vars.append(f"{strNames[i]}: {x}")
+
+    print(vars)
 
     if stream == 'cocurrent':
-      res = solve(Eq((Y1 - Y2) / (X1 - X2), Ls / Vs), solveFor)[0]
+      res = solve(
+                  Eq((Y2 - Y1) / (X2 - X1), -Ls / Vs),
+                  solveFor
+                )[0]
     
     elif stream == 'countercurrent':
-      #res = solve(Eq((Y2 - Y1) / (X2 - X1), Ls / Vs), solveFor)[0]
-      res = solve(Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs)))[0]
+      res = solve(Eq((Y2 - Y1) / (X2 - X1), -Ls / Vs), solveFor)[0]
+      #res = solve(Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs)))[0]
 
     else:
       raise Exception('Stream type not defined')
@@ -401,7 +407,7 @@ class SeparationProcesses():
     return res
 
   @staticmethod
-  def KremserEquation(x0: float, y1: float, # CAPXY Values
+  def KremserEquation(x1: float, y1: float, # CAPXY Values
                       m: float, Ls, Vs, 
                       absorption: bool = True, # False == stripping
                       xN: float = 0, # xN needed for stripping
@@ -413,19 +419,21 @@ class SeparationProcesses():
     
     a_ = (Ls / Vs) / m
     if absorption:
-      print(f"Kremer Inputs: x0: {x0}, y1: {y1}, yN: {yN}, m: {m}")
+      print(f"Kremer Inputs: x1: {x1}, y1: {y1}, yN: {yN}, m: {m}, A: {a_}")
       process = 'absorption'
       numStages = log(
-                      (y1 - (m * x0)) / (yN - (m * x0)) *
+                      (y1 - (m * x1)) / (yN - (m * x1)) *
                       (1 - (1 / a_)) + (1 / a_)
                     ) / log(a_)
       
     else:
-      process = 'stripping'
       a_ = 1 / a_
+      print(f"Kremer Inputs: x1: {x1}, xN: {xN}, yN: {yN}, m: {m}, S: {a_}")
+      process = 'stripping'
+      
 
       numStages = log(
-                      (x0 - (yN / m)) / (xN - (yN / m)) *
+                      (x1 - (yN / m)) / (xN - (yN / m)) *
                       (1 - (1 / a_)) + (1 / a_)
                     ) / log(a_)
       

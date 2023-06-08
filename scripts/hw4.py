@@ -113,6 +113,8 @@ class HW4(CHE362):
     X1, X2 = HW4.CapXY(x0), HW4.CapXY(x1)
     Y1, Y2 = HW4.CapXY(y0), HW4.CapXY(y1)
 
+    print('==== For part c/d/e see Fig1 ====')
+
     print('==== Part c ====')
     Ls = HW4.Solve_MaterialBal_Streams('cocurrent', 
                                   X1, X2, Y1, Y2,
