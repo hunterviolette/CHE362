@@ -313,21 +313,11 @@ class MassTransfer():
                 He_or_vpA, # Henry coefficient (henrys) or vapor pressure of A (raoults)
                 p, # total pressure
                 lawUsed: str = 'henrys', # henrys or raoults 
-                idealSolution: bool = True, # If raoults law, if solution is ideal
                 gamma: float = 1.0, # Activity coefficient            
               ):
-    
-    if lawUsed.lower() == 'henrys' or \
-      (lawUsed.lower() == 'raoults' and idealSolution):
-        
-        m = He_or_vpA / p
 
-    elif lawUsed.lower() == 'raoults' and not idealSolution:
-        m = (He_or_vpA / p) * gamma 
-    else:
-      raise Exception('LawUsed: invalid input, law not found')
-
-    print(f"Slope of overall mass transfer coefficient, m: {m} ")
+    m = (He_or_vpA / p) * gamma 
+    print(f"Slope, m: {round(m, 4)} ")
     return m
 
   @staticmethod
@@ -377,14 +367,6 @@ class MassTransfer():
       print(f"Total phase resistance sums to: {one}")
 
 class SeparationProcesses():
-  
-  @staticmethod
-  def CoCurrent_MoleFrac(x1, x2, y1, y2, L1, L2, V1, V2):
-    return (Eq(L1 * x1) + (V1 * y1), (L2 * x2) + (V2 * y2))
-  
-  @staticmethod
-  def CountCurrent_MoleFrac(x1, x2, y1, y2, L1, L2, V1, V2):
-    return Eq((x1 * L1) + (y2 * V2), (x2 * L2) + (y1 * V1)) 
 
   @staticmethod
   def CapXY(value: float):
@@ -409,7 +391,8 @@ class SeparationProcesses():
       res = solve(Eq((Y1 - Y2) / (X1 - X2), Ls / Vs), solveFor)[0]
     
     elif stream == 'countercurrent':
-      res = solve(Eq((Y2 - Y1) / (X2 - X1), Ls / Vs), solveFor)[0]
+      #res = solve(Eq((Y2 - Y1) / (X2 - X1), Ls / Vs), solveFor)[0]
+      res = solve(Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs)))[0]
 
     else:
       raise Exception('Stream type not defined')
@@ -418,19 +401,21 @@ class SeparationProcesses():
     return res
 
   @staticmethod
-  def KremserEquation(xN: float, yN: float, x0: float, y1: float, # CAPXY Values
+  def KremserEquation(x0: float, y1: float, # CAPXY Values
                       m: float, Ls, Vs, 
                       absorption: bool = True, # False == stripping
+                      xN: float = 0, # xN needed for stripping
+                      yN: float = 0 # y1 only needed if absorbing
                       # Absorption (V -> L), Stripping (L -> V)
                     ):
     
     a_ = (Ls / Vs) / m
     if absorption:
       process = 'absorption'
-      print(xN, yN, x0, y1, m, Ls, Vs)
+      print(yN, x0, y1, m, Ls, Vs)
 
       numStages = log(
-                      (yN - (m * x0)) / (y1 - (m * x0)) *
+                      (y1 - (m * x0)) / (yN - (m * x0)) *
                       (1 - (1 / a_)) + (1 / a_)
                     ) / log(a_)
       
@@ -482,10 +467,17 @@ class Util(SeparationProcesses):
     return fig
   
   @staticmethod
-  def PlotLines(fig, lines: list = []):
+  def PlotLines(fig, 
+                lines: list = [], 
+              ):
     if lines:
       for i, x in enumerate(lines):
-        fig.add_trace(go.Scatter(x=x['X'], y=x['Y'], name=f"line{i}", 
+        if len(x) == 1:
+          mode = 'markers'
+        else:
+          mode = 'lines'
+        
+        fig.add_trace(go.Scatter(x=x['X'], y=x['Y'], name=f"{mode}{i}", mode=mode,
                       marker=dict(color=tuple(random(size=3) * 256) , size=12, 
                                   line=dict(width=1))))
 
@@ -496,7 +488,6 @@ class CHE362(Diffusion, MassTransfer, Util):
 
 if __name__ == "__main__":
   s = CHE362()
-  
   '''
   s.Solve_MaterialBal_Streams(
               stream='countercurrent',

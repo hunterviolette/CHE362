@@ -26,12 +26,7 @@ class HW5(CHE362):
 
         vp, p = q(126, 'mmHg').to('atm').magnitude * atm, 1 * atm
 
-        x1 = HW5.Solve_EquilibRelationship(
-                vp, p, symbols('x1'), y1, symbols('x1'), gamma
-            )
-
-        
-        X1, X2 = HW5.CapXY(x0), HW5.CapXY(x1)
+        X1, X2 = 0, .0752 # Found on graph
         Y1, Y2 = HW5.CapXY(y0), HW5.CapXY(y1)
 
         print('==== Part b ====')
@@ -43,20 +38,9 @@ class HW5(CHE362):
                                 )
         
         lines = []
-        lines.append(pd.DataFrame({"X": [X1, X2], "Y":[Y1, Y2]}).astype(float))
+        lines.append(pd.DataFrame({"X": [X1], "Y":[Y1]}).astype(float))
+        lines.append(pd.DataFrame({"X": [X1], "Y":[Y2]}).astype(float))
 
-        print('==== Part c ====')
-        Xn_1_4Ls = HW5.Solve_MaterialBal_Streams('countercurrent', 
-                                    X1 = HW5.CapXY(x0), 
-                                    X2 = symbols('Xn'), 
-                                    Y1 = HW5.CapXY(y0), 
-                                    Y2 = HW5.CapXY(y1), 
-                                    Ls = Ls*1.4, 
-                                    Vs = Vs, 
-                                    solveFor = symbols('Xn'),
-                                )
-        
-        lines.append(pd.DataFrame({"X": [X1, Xn_1_4Ls], "Y":[Y1, Y2]}).astype(float))
         
         fig = HW5.EquilibriumDiagram(vp, p, # vapor pressure of A, total pressure
                 xStep = .005, yStep = .01, # Formatting Figure tickmarks
@@ -64,20 +48,30 @@ class HW5(CHE362):
                 dataGen = [0, .5, .001], # Generate Equilibrium diagram data [startingValue, EndValue, StepValue]
                 gamma = gamma
             )
+        fig.add_hline(y=Y1, line_dash = "dot")
+
+        # Line for part b
+        #lines.append(pd.DataFrame({"X": [X1, .07526], "Y":[Y2, .02042]}).astype(float))
+
+        print('==== Part c ====')
+        Ls *= 1.4
+        xN = HW5.Solve_MaterialBal_Streams('countercurrent', 
+                                    X1, symbols('X2'), Y1, Y2,
+                                    Ls = Ls, 
+                                    Vs = Vs, 
+                                    solveFor = symbols('X2')
+                                )
+        
+        # Line for part c
+        lines.append(pd.DataFrame({"X": [X1, xN], "Y":[Y2, Y1]}).astype(float))
         
         fig = HW5.PlotLines(fig, lines).show()
-        
+
         print('==== Part d ====')
-        stages = HW5.KremserEquation(
-                                    xN = X2,
-                                    yN = Y2,
-                                    x0 = X1,
-                                    y1 = Y2,
-                                    m = HW5.Slope_OMTC(vp, p, 'raoults', 
-                                            idealSolution=False, gamma=gamma
-                                        ),
-                                    Ls = 1.4*Ls, Vs= Vs, absorption=True
-                                    
-                                )
+        HW5.KremserEquation(yN = Y2, # xN Only needed if stripping
+                            x0 = X1, # y1 only needed if absorbing
+                            m = HW5.Slope_OMTC(vp, p, 'raoults', gamma=gamma),
+                            Ls = abs(Ls), Vs = abs(Vs), absorption=True, y1 = Y1,
+                        )
 
 h = HW5().One()
