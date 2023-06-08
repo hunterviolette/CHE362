@@ -1,6 +1,6 @@
 from sympy import Eq, solve, symbols
 from sympy.physics.units.util import convert_to
-from sympy.physics.units import mol, m, second
+from sympy.physics.units import mol, m, second, hour
 import sympy.abc as cnst
 import pint
 from math import log
@@ -406,28 +406,45 @@ class SeparationProcesses():
           print(f"{strNames[i]}: {x}")
 
     if stream == 'cocurrent':
-      res = solve(Eq((Y2 - Y1) / (X2 - X1), -1*(Ls / Vs)), solveFor)[0]
+      res = solve(Eq((Y1 - Y2) / (X1 - X2), Ls / Vs), solveFor)[0]
     
     elif stream == 'countercurrent':
-      res = solve(Eq((Y2 - Y1) / (X2 - X1), (Ls / Vs)), solveFor)[0]
+      res = solve(Eq((Y2 - Y1) / (X2 - X1), Ls / Vs), solveFor)[0]
+
+    else:
+      raise Exception('Stream type not defined')
       
     print(f"{stream} stream solved for {solveFor}: {res}")
     return res
 
   @staticmethod
-  def KremserEquation(xN: float, yN: float, x0: float, y1: float, m: float,
-            krem_factor: float, # absorption or stripping factor 
-            absorption: bool = True, # False == stripping
+  def KremserEquation(xN: float, yN: float, x0: float, y1: float, # CAPXY Values
+                      m: float, Ls, Vs, 
+                      absorption: bool = True, # False == stripping
+                      # Absorption (V -> L), Stripping (L -> V)
                     ):
-    if absorption:
-      numStages = log((yN - (m* x0) / (y1 - (m * x0))) * (1 - (1 / krem_factor) + (1 / krem_factor))) / log(krem_factor)
-      process = 'absorption'
     
+    a_ = (Ls / Vs) / m
+    if absorption:
+      process = 'absorption'
+      print(xN, yN, x0, y1, m, Ls, Vs)
+
+      numStages = log(
+                      (yN - (m * x0)) / (y1 - (m * x0)) *
+                      (1 - (1 / a_)) + (1 / a_)
+                    ) / log(a_)
+      
     else:
-      numStages = log((x0 - (yN / m) / (xN - yN)) * (1 - (1 / krem_factor) + (1 / krem_factor))) / log(krem_factor)
       process = 'stripping'
+      a_ = 1 / a_
+
+      numStages = log(
+                      (x0 - (yN / m)) / (xN - (yN / m)) *
+                      (1 - (1 / a_)) + (1 / a_)
+                    ) / log(a_)
       
     print(f"Kremser Equation - [number_stages, process]: [{numStages}, {process}]")
+    return numStages
 
 class Util(SeparationProcesses):
 
@@ -478,50 +495,20 @@ class CHE362(Diffusion, MassTransfer, Util):
   pass
 
 if __name__ == "__main__":
-  s = SeparationProcesses()
+  s = CHE362()
   
   '''
-  b = MassTransfer()
+  s.Solve_MaterialBal_Streams(
+              stream='countercurrent',
+              X1 = 0,
+              X2 = .074, 
+              Y1 = s.CapXY(.001), 
+              Y2 = s.CapXY(.02), 
+              Ls = symbols('Ls'),
+              Vs = 98 * 10**3 * mol / hour,
+              solveFor = symbols('Ls')
+            )
   
-  reg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
-  reg.default_format = "~P"
-  q  = reg.Quantity 
-
-
-  re = b.ReynoldsNumber(
-                    L = q(5, 'cm').to('m'),
-                    rho = q(1000, 'kg/m**3'),
-                    v = q(10, 'm/s'),
-                    mu = q(.95, 'kg/(m*s)')
-                  )
-  print(re)'''
-
-  '''
-  d_AB = b.FullerDiffusivity(1, # pressure in atmospheres
-                  299, # temperature in kelvin 
-                  112.56, # molecular weight species A
-                  28.97, # molecular weight species B 
-                  109.65, # diffusion volume species A 
-                  19.7, # diffusion volume species B
-                  'Chlorobenzene', # name of species A
-                  'Air' # name of species B
-                )
-  
-  b.percentDifference(d_AB, .074)
-  '''
-  
-  '''
-  d_AB_1, t_1 = 0.783, 298
-  d_AB_2_table, t_2 = 2.149, 533
-  
-  d_AB = b.SimplifiedFullerDiffusivity(d_AB_1, t_1, t_2)
-  b.percentDifference(d_AB, d_AB_2_table)
   '''
 
-  '''
-  mVol_at_t = 59.47
-  sTension_at_t = 19.22
-  
-  print(mVol_at_t * sTension_at_t**(1/4))
-  '''
-  
+  s.KremserEquation(0, .02, 0, .001, .286, 9.785, 27.222)
