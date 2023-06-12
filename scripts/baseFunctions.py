@@ -312,7 +312,6 @@ class MassTransfer():
   def Slope_OMTC(
                 He_or_vpA, # Henry coefficient (henrys) or vapor pressure of A (raoults)
                 p, # total pressure
-                lawUsed: str = 'henrys', # henrys or raoults 
                 gamma: float = 1.0, # Activity coefficient            
               ):
 
@@ -400,11 +399,54 @@ class SeparationProcesses():
       res = solve(Eq((Y2 - Y1) / (X2 - X1), -Ls / Vs), solveFor)[0]
       #res = solve(Eq((X1 * Ls) + (Y2 * Vs), (X2 * Ls) + (Y1 * Vs)))[0]
 
+    elif stream == 'packedcolumn':
+      res = solve(
+                Eq(X))
+
     else:
       raise Exception('Stream type not defined')
       
     print(f"{stream} stream solved for {solveFor}: {res}")
     return res
+  
+  @staticmethod
+  def PackedColumn_MaterialBal(X0, Ls, Yn_1, Vs, Xn, Y1, solveFor):
+    '''
+    return solve(
+              Eq((X0 * Ls) + (Yn_1 * Vs), (Xn * Ls) + (Y1 * Vs)),
+              solveFor
+            )[0]
+    '''
+  
+    return solve(
+                Eq((Yn_1 - Y1) / (Xn - X0), Ls / Vs),
+                solveFor
+              )[0]
+  
+  @staticmethod
+  def PackedColumn_Kremser(Ls, Vs, m, ynp1, x0, y1, xn, absorption: bool = True):
+          
+    print(f"Kremer Inputs: Ls: {Ls}, Vs: {Vs}, x0: {x0}, xn: {xn}, ynp1: {ynp1}, y1: {y1}")
+
+    a_ = (Ls / Vs) / m
+    if absorption:
+      return log(
+              ((ynp1 - (m * x0)) / (y1 - (m * x0))) *
+              (1 - (1 / a_)) + (1 / a_)
+            ) / log(a_)
+    else:
+      s_ = 1 / a_
+      return log(
+                ((x0 - (ynp1 / m)) / (xn - ynp1)) *
+                (1 - (1 / s_)) + (1 / s_)
+              ) / log(s_)
+
+  @staticmethod
+  def PackedColumn_Efficiency(x, epsilon, solveFor):
+    return solve(
+            Eq(log(1.597 - (0.199 * log(x)) - (0.0896 * log(x)**2)), epsilon),
+            solveFor
+          )[0]
 
   @staticmethod
   def KremserEquation(x1: float, y1: float, # CAPXY Values
