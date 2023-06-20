@@ -49,7 +49,7 @@ class HW9(CHE362):
     r_ = Rmin * 1.2
     print(f"Rmin: {Rmin}, R: {r_}")
     
-    fig = HW9.Generate_YX_Diagram(pd.read_csv('hw9a.csv'))
+    fig = HW9.Generate_YX_Diagram(pd.read_csv('tables/hw9a.csv'))
     fig.add_vline(x=xF, line_dash="dot", annotation_text="Feed line", annotation_font_color="white")
     fig.show()
     
@@ -114,7 +114,7 @@ class HW9(CHE362):
     r_ = Rmin * 1.2
     print(f"Rmin: {Rmin}, R: {r_}")
 
-    fig = HW9.Generate_YX_Diagram(pd.read_csv('hw9a.csv'))
+    fig = HW9.Generate_YX_Diagram(pd.read_csv('tables/hw9a.csv'))
     fig.add_hline(y=xF, line_dash="dot", annotation_text="Feed line", annotation_font_color="white")
     fig.show()
 
@@ -144,7 +144,7 @@ class HW9(CHE362):
     print(f"Flow rates: {soln}")
     b_, d_ = soln[b_], soln[d_]
   
-    fig = HW9.Generate_YX_Diagram(pd.read_csv('hw9b.csv'))
+    fig = HW9.Generate_YX_Diagram(pd.read_csv('tables/hw9b.csv'))
     fig.add_hline(y=xF, line_dash="dot", annotation_text="Feed line", annotation_font_color="white")
     fig.show()
     
