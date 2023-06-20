@@ -49,29 +49,13 @@ class HW9(CHE362):
     r_ = Rmin * 1.2
     print(f"Rmin: {Rmin}, R: {r_}")
     
-    df = pd.read_csv('hw9a.csv')    
-
-    fig = px.line(df, df['xVal'], df['yVal'])
-    fig.add_trace(HW9.FortyFiveLine())
+    fig = HW9.Generate_YX_Diagram(pd.read_csv('hw9a.csv'))
     fig.add_vline(x=xF, line_dash="dot", annotation_text="Feed line", annotation_font_color="white")
-
-    fig.update_layout(
-            xaxis=dict(
-                tickmode='linear',
-                dtick=.01,
-                range=[0,1]
-              ),
-            yaxis=dict(
-                tickmode='linear',
-                dtick=.01,
-                range=[0,1],
-              ),
-            template='plotly_dark'
-          )
+    fig.show()
     
     lines = []
     lines.append(pd.DataFrame({"X": [0, xD], "Y":[xD / (r_ + 1), yD]}).astype(float))
-    lines.append(pd.DataFrame({"X": [xB, xF], "Y":[yB, yF]}).astype(float))
+    lines.append(pd.DataFrame({"X": [xB, xF], "Y":[yB, .438]}).astype(float))
 
     fig = HW9.PlotLines(fig, lines).show()
 
@@ -130,25 +114,9 @@ class HW9(CHE362):
     r_ = Rmin * 1.2
     print(f"Rmin: {Rmin}, R: {r_}")
 
-    df = pd.read_csv('hw9a.csv')    
-
-    fig = px.line(df, df['xVal'], df['yVal'])
-    fig.add_trace(HW9.FortyFiveLine())
+    fig = HW9.Generate_YX_Diagram(pd.read_csv('hw9a.csv'))
     fig.add_hline(y=xF, line_dash="dot", annotation_text="Feed line", annotation_font_color="white")
-
-    fig.update_layout(
-            xaxis=dict(
-                tickmode='linear',
-                dtick=.01,
-                range=[0,1]
-              ),
-            yaxis=dict(
-                tickmode='linear',
-                dtick=.01,
-                range=[0,1],
-              ),
-            template='plotly_dark'
-          )
+    fig.show()
 
     lines = []
     lines.append(pd.DataFrame({"X": [0, xD], "Y":[xD / (r_ + 1), yD]}).astype(float))
@@ -176,26 +144,8 @@ class HW9(CHE362):
     print(f"Flow rates: {soln}")
     b_, d_ = soln[b_], soln[d_]
   
-    df = pd.read_csv('hw9b.csv')    
-
-    fig = px.line(df, df['xVal'], df['yVal'])
-    fig.add_trace(HW9.FortyFiveLine())
+    fig = HW9.Generate_YX_Diagram(pd.read_csv('hw9b.csv'))
     fig.add_hline(y=xF, line_dash="dot", annotation_text="Feed line", annotation_font_color="white")
-
-    fig.update_layout(
-            xaxis=dict(
-                tickmode='linear',
-                dtick=.01,
-                range=[0,1]
-              ),
-            yaxis=dict(
-                tickmode='linear',
-                dtick=.01,
-                range=[0,1],
-              ),
-            template='plotly_dark'
-          )
-    
     fig.show()
     
     yF, yD, yB = .424, .65, .01
@@ -215,5 +165,5 @@ class HW9(CHE362):
     lines.append(pd.DataFrame({"X": [xB, xF], "Y":[yB, yF]}).astype(float))
     fig = HW9.PlotLines(fig, lines).show()
 
-HW9.Three()
+HW9.One()
 
