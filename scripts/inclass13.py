@@ -31,16 +31,12 @@ kV = q(solve(Eq(
             kV
         )[0]*10, 'ft/s')
 
-dyne = 0.00001 
 sigma = 19.7 # dyne / cm
-#uC = convert_to(kV * (sigma / 20)**.2 * ((rhoL - rhoV) / rhoV), feet / second)
 uC = kV * (sigma / 20)**.2 * ((rhoL - rhoV) / rhoV)**.5
-#uC = q(10.385, 'ft/s')
-
 percFlood, activA = .75, .8
 uO = q(uC * percFlood, 'ft/s')
 
-d_, mW = q(39.796*10**3, 'mol/hr'), q(32, 'kg/mol')
+d_, mW = q(39.796*10**3, 'mol/hr'), q(32, 'g/mol')
 v_ = d_ * (r_ + 1)
 vDot = (v_ * mW / rhoV).to('ft**3/s')
 
@@ -49,12 +45,12 @@ actualArea = area / activA
 diameter = (4 * actualArea / pi)**.5
 
 print( 
-      f"kV: {kV}",
-      f"uC: {uC}", 
-      f"uO: {uO}", 
-      f"V: {v_}",
-      f"vDot: {vDot}", 
-      f"area: {area}", 
-      f"actual area: {actualArea}", 
-      f"diameter: {diameter}", 
+    f"kV: {kV}",
+    f"uC: {uC}", 
+    f"uO: {uO}", 
+    f"V: {v_}",
+    f"vDot: {vDot}", 
+    f"area: {area}", 
+    f"actual area: {actualArea}", 
+    f"diameter: {diameter}", 
     sep='\n')
