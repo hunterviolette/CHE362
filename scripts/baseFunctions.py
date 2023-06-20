@@ -534,6 +534,22 @@ class Util(SeparationProcesses):
 
     return fig
 
+  @staticmethod
+  def FortyFiveLine():
+    df = pd.DataFrame()
+    for x in arange(0, 1.02, .02): 
+      y = float(x)
+      df = pd.concat([df, pd.DataFrame({"x":[x], "y":[y]}
+                                    )], ignore_index=True)
+
+    return go.Scatter(
+            x = df['x'], y = df['y'], 
+            name=f"Forty Five Degree Line",
+            marker = dict(color = tuple(random(size = 3) * 256), 
+            size = 12, line = dict(width = 1))
+          )
+
+  
 class CHE362(Diffusion, MassTransfer, Util):
   pass
 
