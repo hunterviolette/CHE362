@@ -1,13 +1,11 @@
 from pint import UnitRegistry
 from math import pi, log
 
-from baseFunctions import CHE362
-
 uReg = UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
 q  = uReg.Quantity
 
-class HW10(CHE362):
+class HW10():
 
   @staticmethod
   def C():
