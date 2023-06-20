@@ -549,6 +549,24 @@ class Util(SeparationProcesses):
             size = 12, line = dict(width = 1))
           )
 
+  @staticmethod
+  def Generate_YX_Diagram(df: pd.DataFrame):
+    fig = px.line(df, df['xVal'], df['yVal'])
+    fig.add_trace(Util.FortyFiveLine())
+
+    return fig.update_layout(
+            xaxis=dict(
+                tickmode='linear',
+                dtick=.01,
+                range=[0,1]
+              ),
+            yaxis=dict(
+                tickmode='linear',
+                dtick=.01,
+                range=[0,1],
+              ),
+            template='plotly_dark'
+          )
   
 class CHE362(Diffusion, MassTransfer, Util):
   pass
