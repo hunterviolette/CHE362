@@ -570,6 +570,7 @@ class Util(SeparationProcesses):
   
 class Distillation():
 
+  @staticmethod
   def Solve_DB(f_, xF, xD, xB):
 
     b_, d_ = symbols('B'), symbols('D')
@@ -588,6 +589,7 @@ class Distillation():
     print(f"Flow rates: {soln}")
     return soln[b_], soln[d_]
   
+  @staticmethod
   def Solve_Rmin(xD, yF, xF, r_Scalar: float = 1):
     Rmin = symbols('R')
     Rmin = solve( 
@@ -600,7 +602,7 @@ class Distillation():
     r_ = Rmin * r_Scalar
     print(f"Rmin: {Rmin}, R: {r_}")
     return r_
-  
+   
 class CHE362(Diffusion, MassTransfer, Util, Distillation):
   pass
 

@@ -1,118 +1,135 @@
-from pint import UnitRegistry
-
 from sympy.physics.units import atm, mol, hour
-from math import pi, log
+from math import pi, log, modf
 
+import pint
 import pandas as pd
 import plotly_express as px
 import plotly.graph_objects as go
 
 from baseFunctions import CHE362
 
-uReg = UnitRegistry(autoconvert_offset_to_baseunit = True)
+uReg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
+uReg.define('dollars = 1')
 q  = uReg.Quantity
-
 
 class DP(CHE362):
 
   def __init__(self) -> None:
-    pass
-  
-  def XY_Diagram(self, plot: bool = False):
-    f_ = 500*10**3 * mol/hour
-    xF, xD, xB,  = .2, .99, .01
-    yF, yD, yB = .533, .99, .01
+    pd.DataFrame().to_csv('tables/proj_export.csv')
 
-    self.b_, self.d_ = DP.Solve_DB(f_, xF, xD, xB)
-    self.r_ = DP.Solve_Rmin(xD, yF, xF, 1.2)
+    ### Heat Transfer Area Constants ###
+    self.hVap = q(30.75, 'kJ/mol') # heat of vaporization 
+    t_CWI = q(30, 'degC') # cooling water in: condenser
+    t_CWO = q(45, 'degC') # cooling water out: condenser
+    t_D = q(80, 'degC') # temperature of distillate stream boiling point
+    t_B = q(136, 'degC') # temperature of bottom stream boiling point
+    t_ST = q(185.477, 'degC') # temperature of steam
+
+    self.hdUnit = 'GJ/hr' # Heat duty import units
+
+    self.dT_Ln = (
+              ((t_D - t_CWI) - (t_D - t_CWO)) 
+              / log(
+                    (t_D - t_CWI) / 
+                    (t_D - t_CWO)
+                  )
+                  ).to('delta_degF')
     
-    if plot:
-      fig = DP.Generate_YX_Diagram(pd.read_csv('tables/proj_base.csv'))
-      fig.add_vline(x=xF, line_dash="dot", annotation_text="Feed line", annotation_font_color="white")
-      
-      lines = []
-      lines.append(pd.DataFrame({"X": [0, xD], "Y":[xD / (self.r_ + 1), yD]}).astype(float))
-      lines.append(pd.DataFrame({"X": [xB, xF], "Y":[yB, .498]}).astype(float))
+    dT = (t_ST - t_B).to('delta_degC')
+    if dT.magnitude > 30:
+      dT = q(30, 'delta_degC') 
 
-      fig = DP.PlotLines(fig, lines).show()
+    self.dT = dT.to('delta_degF')
 
-  def Area(self):
-    DP.XY_Diagram(self)
-    self.d_ = q(self.d_ * hour / mol, 'mol/h')
+    ### Economic Constants ###
+    self.fP, self.fM, self.eta = 1, 1, .75
+    self.traySpacing = q(2, 'ft')
 
-    t_CWI, t_CWO = q(30, 'degC'), q(45, 'degC')
-    t_D, t_B, t_ST = q(80, 'degC'), q(136, 'degC'), q(185.477, 'degC')
+    self.df = pd.read_csv('tables/proj_import.csv')
 
-    dT_Ln = (((t_D - t_CWI) - (t_D - t_CWO)) / log((t_D - t_CWI) / (t_D - t_CWO))).to('delta_degF')
-    dT = (t_ST - t_B).to('delta_degF')
-    if dT.magnitude > 50:
-      dT = q(50, 'delta_degF') 
 
-    q_C = (self.d_ * (self.r_ + 1) * q(30.75,'kJ/mol')).to('GJ/hr')
-    q_B = q_C
+  def HeatTransferArea(self, hD, condenser: bool = True):
 
     muOc = q(150, 'Btu/(h * ft**2 * degF)')
     muOb = q(200, 'Btu/(h * ft**2 * degF)')
 
-    a_C = (q_C / (muOc * dT_Ln)).to('m**2')
-    a_B = (q_B / (muOb * dT)).to('m**2')
+    if condenser:
+      return (q(hD, self.hdUnit) / (muOc * self.dT_Ln)).to('m**2')
+    else:
+      return (q(hD, self.hdUnit) / (muOb * self.dT)).to('m**2')
+  
+  def main(self):
 
-    print(
-          "==== Area Calculations ====",
-          f"dT Ln, condenser: {dT_Ln}",
-          f"dT, reboiler: {dT}",
-          f"Heat duty, condenser: {q_C}",
-          f"Heat duty, reboiler: {q_B}",
-          f"Heat transfer coefficient, condenser: {muOc}",
-          f"Heat transfer coefficient, reboilder: {muOb}",
-          f"Heat transfer area, condenser: {a_C}",
-          f"Heat transfer area, reboiler: {a_B}",
-        sep='\n'
-      )
+    fdf = pd.DataFrame()
+    for i, x in self.df.iterrows():
+      nTrays = (x['idealTrays'] - 1) / self.eta
 
-  def Diameter(self):
-    DP.Area(self)
-    #### Input vars
+      areaC = DP.HeatTransferArea(self, hD=abs(x['Qc'])).to('m**2').magnitude
+      areaB = DP.HeatTransferArea(self, hD=x['Qb'], condenser=False).to('m**2').magnitude
+      area = (pi * (q(x["diameter"], 'ft') / 2)**2).to('m**2').magnitude
 
-    mW = q(78.11, 'g/mol') # Molecular weight of benzene
-    rhoV= ( q(35.01, 'mol/m**3') * mW).to('kg/m**3') # rhoV Table 135 Yaws at Tb
-    rhoL =( q(10450, 'mol/m**3') * mW).to('kg/m**3')  # Molecular weight of liquid benzene
+      h_ = (q(10, 'ft') + nTrays * self.traySpacing).to('ft')
+      frac, whole = modf(h_.magnitude)
+      if frac >= 0.5:
+        h_ = round(h_, 0)
+      elif frac < 0.5:
+        h_ = q(whole + .5, 'ft')
 
-    sigma = 21.11 # dyne / cm
-    percFlood, activeArea = .75, .8
-    ####
+      d = q(x["diameter"], 'ft')
+      vol = (pi * (d / 2)**2 * h_).to('m**3').magnitude
 
-    f_LV = (self.r_ / (self.r_ + 1)) * (rhoV / rhoL)**.5
-    kV = q(10**(-.94506 - .70234 * log(f_LV, 10) - .22618 * log(f_LV, 10)**2), 'ft/s')
+      if nTrays > 20:
+        fQ = 1
+      else:
+        fQ = 10**(.4771 + .08516 * log(nTrays, 10) - .3473 * log(nTrays, 10)**2)
 
-    uC = (kV * (sigma / 20)**.2 * ((rhoL - rhoV) / rhoV)**.5).to('ft/s')
-    uO = uC * percFlood
+      cShell = 10**(3.4974 + .4485 * log(vol, 10) + .1074 * log(vol, 10)**2) * \
+                  (2.25 + (1.82 * self.fP * self.fM))
 
-    v_ = self.d_ * (self.r_ + 1)
-    vDot = (v_ * mW / rhoV).to('ft**3/s')
+      cTrays = 10**(3.3322 + .4838 * log(area, 10) + .3434 * log(area, 10)**2) * \
+                  fQ * nTrays
+      
+      cCondenser = 10**(4.3247 - .303 * log(areaC, 10) + .1634 * log(areaC, 10)**2) * \
+                  (1.63 + (1.66 * self.fM * self.fP))
+      
+      cBoiler = 10**(4.4646 - .5277 * log(areaB, 10) + .3955 * log(areaB, 10)**2) * \
+                  (1.63 + (1.66 * self.fM * self.fP))
+      
+      cSteam = q(abs(x["Qc"]), self.hdUnit) * q(14.83, 'dollars/GJ') * q(350, 'day').to('h')
+      cWater = q(x["Qb"], self.hdUnit) * q(.354, 'dollars/GJ') * q(350, 'day').to('h')
 
-    area = (vDot / uO).to('ft**2')
-    actualArea = area / activeArea
-    self.d = (4 * actualArea / pi)**.5
+      capCost = cShell + cTrays + cCondenser + cBoiler
+      opCost = cSteam + cWater
 
-    print( 
-          f"==== Diameter Calculations ====",
-          f"F_LV: {f_LV}",
-          f"kV: {kV}",
-          f"uC: {uC}", 
-          f"uO: {uO}", 
-          f"V: {v_}",
-          f"Vdot: {vDot}", 
-          f"area: {area}", 
-          f"actual area: {actualArea}", 
-          f"diameter: {self.d}", 
-        sep='\n')
+      eAOC = opCost + (capCost / 5)
+      steamAOC = cSteam / eAOC
 
-  def Economics(self):
-    DP.Diameter(self)
+      y = {}
+      y["ideal stages"] = [x["idealTrays"]]
+      y["real trays"] = [nTrays]
+      y["reflux ratio"] = [x['reflux_ratio']]
+      y["column height (ft)"] =  [h_.magnitude]
+      y["condenser heat duty (GJ/h)"] = [x["Qc"]]
+      y["boiler heat duty (GJ/h)"] = [x["Qb"]]
+      y["condenser area (m**2)"] = [areaC]
+      y["boiler area (m**2)"] = [areaB]
+      y["shell cost"] = [cShell]
+      y["tray cost"] = [cTrays]
+      y["condenser cost"] = [cCondenser]
+      y["reboiler cost"] = [cBoiler]
+      y["annual steam cost"] = [cSteam.magnitude]
+      y["annual cooling water cost"] = [cWater.magnitude]
+      y["total capital cost"] = [capCost]
+      y["annual utility cost"] = [opCost.magnitude]
+      y["EAOC"] = [eAOC.magnitude]
+      y["EAOC steam"] = [steamAOC.magnitude]
 
-    nTrays, traySpacing = 23, q(2, 'ft')
-    fP, fM, vC = 1, 1, ((self.d / 2)**2).to('m**2').magnitude
+      fdf = pd.concat([pd.DataFrame(y), fdf], axis=0, ignore_index=True)
+      
+    fdf = fdf.round(2).sort_values()
+    fdf.round(2).to_csv('tables/proj_export.csv')
+    print(fdf)
 
-DP().Diameter()
+
+DP().main()
