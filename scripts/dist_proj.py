@@ -46,8 +46,8 @@ class DP(CHE362):
     self.fP, self.fM, self.eta = 1, 1, .75
     self.traySpacing = q(2, 'ft')
 
-    self.df = pd.read_csv('tables/proj_import.csv')
-
+    df = pd.read_csv('tables/proj_raw.csv')
+    self.df = df[df.converged == True] 
 
   def HeatTransferArea(self, hD, condenser: bool = True):
 
@@ -63,17 +63,17 @@ class DP(CHE362):
 
     fdf = pd.DataFrame()
     for i, x in self.df.iterrows():
-      nTrays = (x['idealTrays'] - 1) / self.eta
+      nTrays = round(x['idealStages'] / self.eta, 0)
 
-      areaC = DP.HeatTransferArea(self, hD=abs(x['Qc'])).to('m**2').magnitude
-      areaB = DP.HeatTransferArea(self, hD=x['Qb'], condenser=False).to('m**2').magnitude
+      areaC = DP.HeatTransferArea(self, hD=abs(x['qC'])).to('m**2').magnitude
+      areaB = DP.HeatTransferArea(self, hD=x['qB'], condenser=False).to('m**2').magnitude
       area = (pi * (q(x["diameter"], 'ft') / 2)**2).to('m**2').magnitude
 
-      h_ = (q(10, 'ft') + nTrays * self.traySpacing).to('ft')
+      h_ = (q(10, 'ft') + (nTrays - 1) * self.traySpacing).to('ft')
       frac, whole = modf(h_.magnitude)
       if frac >= 0.5:
         h_ = round(h_, 0)
-      elif frac < 0.5:
+      elif (frac < 0.5) and (frac > .01) :
         h_ = q(whole + .5, 'ft')
 
       d = q(x["diameter"], 'ft')
@@ -96,8 +96,8 @@ class DP(CHE362):
       cBoiler = 10**(4.4646 - .5277 * log(areaB, 10) + .3955 * log(areaB, 10)**2) * \
                   (1.63 + (1.66 * self.fM * self.fP))
       
-      cSteam = q(abs(x["Qc"]), self.hdUnit) * q(14.83, 'dollars/GJ') * q(350, 'day').to('h')
-      cWater = q(x["Qb"], self.hdUnit) * q(.354, 'dollars/GJ') * q(350, 'day').to('h')
+      cSteam = q(x["qB"], self.hdUnit) * q(14.83, 'dollars/GJ') * q(350, 'day').to('h')
+      cWater = q(abs(x["qC"]), self.hdUnit) * q(.354, 'dollars/GJ') * q(350, 'day').to('h')
 
       capCost = cShell + cTrays + cCondenser + cBoiler
       opCost = cSteam + cWater
@@ -106,12 +106,13 @@ class DP(CHE362):
       steamAOC = cSteam / eAOC
 
       y = {}
-      y["ideal stages"] = [x["idealTrays"]]
+      y["ideal stages"] = [x["idealStages"]]
+      y["feed stage"] = [x["feedTray"]]
       y["real trays"] = [nTrays]
-      y["reflux ratio"] = [x['reflux_ratio']]
+      y["reflux ratio"] = [x['refluxRatio']]
       y["column height (ft)"] =  [h_.magnitude]
-      y["condenser heat duty (GJ/h)"] = [x["Qc"]]
-      y["boiler heat duty (GJ/h)"] = [x["Qb"]]
+      y["condenser heat duty (GJ/h)"] = [x["qC"]]
+      y["boiler heat duty (GJ/h)"] = [x["qB"]]
       y["condenser area (m**2)"] = [areaC]
       y["boiler area (m**2)"] = [areaB]
       y["shell cost"] = [cShell]
@@ -127,7 +128,7 @@ class DP(CHE362):
 
       fdf = pd.concat([pd.DataFrame(y), fdf], axis=0, ignore_index=True)
       
-    fdf = fdf.round(2).sort_values()
+    fdf = fdf.round(2).sort_values(by='EAOC')
     fdf.round(2).to_csv('tables/proj_export.csv')
     print(fdf)
 
