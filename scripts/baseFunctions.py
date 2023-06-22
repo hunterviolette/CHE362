@@ -568,7 +568,40 @@ class Util(SeparationProcesses):
             template='plotly_dark'
           )
   
-class CHE362(Diffusion, MassTransfer, Util):
+class Distillation():
+
+  def Solve_DB(f_, xF, xD, xB):
+
+    b_, d_ = symbols('B'), symbols('D')
+    soln = solve((
+                    Eq( 
+                        xD * d_ + xB * b_, 
+                        xF * f_
+                      ),
+                    Eq( 
+                        d_ + b_, 
+                        f_ 
+                      )
+                  ),
+                  (b_, d_)
+                )
+    print(f"Flow rates: {soln}")
+    return soln[b_], soln[d_]
+  
+  def Solve_Rmin(xD, yF, xF, r_Scalar: float = 1):
+    Rmin = symbols('R')
+    Rmin = solve( 
+                  Eq(
+                    Rmin / (Rmin + 1), 
+                    (xD - yF) / (xD - xF)
+                  ),
+                  Rmin
+                )[0]
+    r_ = Rmin * r_Scalar
+    print(f"Rmin: {Rmin}, R: {r_}")
+    return r_
+  
+class CHE362(Diffusion, MassTransfer, Util, Distillation):
   pass
 
 if __name__ == "__main__":
