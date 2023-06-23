@@ -3,10 +3,8 @@ from math import pi, log
 
 import pint
 import pandas as pd
-import plotly_express as px
-import plotly.graph_objects as go
 
-from baseFunctions import CHE362
+from ..scripts.baseFunctions import CHE362
 
 uReg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
@@ -28,7 +26,7 @@ class DP(CHE362):
     self.r_ = DP.Solve_Rmin(xD, yF, xF, 1.2)
     
     if plot:
-      fig = DP.Generate_YX_Diagram(pd.read_csv('tables/proj_base.csv'))
+      fig = DP.Generate_YX_Diagram(pd.read_csv('base_case_raw.csv'))
       fig.add_vline(x=xF, line_dash="dot", annotation_text="Feed line", annotation_font_color="white")
       
       lines = []
