@@ -602,7 +602,7 @@ class Distillation():
     r_ = Rmin * r_Scalar
     print(f"Rmin: {Rmin}, R: {r_}")
     return r_
-   
+
 class CHE362(Diffusion, MassTransfer, Util, Distillation):
   pass
 

@@ -8,8 +8,7 @@ from plotly.subplots import make_subplots
 
 from sys import path
 path.append('..')
-from ..scripts.baseFunctions import CHE362
-
+from scripts.baseFunctions import CHE362
 
 uReg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
@@ -224,6 +223,6 @@ class DP_ANALYSIS():
 
     fig.update_layout(hovermode="x unified", template='plotly_dark', height=2400)
 
-    save_plot(fig, filename='dist_figures.html')
+    save_plot(fig, filename='main_figures.html')
 
 DP_ANALYSIS().Graphs()
