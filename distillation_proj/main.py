@@ -80,8 +80,10 @@ class DP(CHE362):
       frac, whole = modf(h_.magnitude)
       if frac >= 0.5:
         h_ = round(h_, 0)
-      elif (frac < 0.5) and (frac > .01) :
+      elif (frac < 0.5) and (frac > .01):
         h_ = q(whole + .5, 'ft')
+      else:
+        h_ = round(h_, 0)
 
       frac, whole = modf(x["diameter"])
       if frac >= 0.5:
