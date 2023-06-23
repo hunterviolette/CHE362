@@ -90,6 +90,8 @@ class DP(CHE362):
         diameter = q(round(x["diameter"], 0), 'ft')
       elif (frac < 0.5) and (frac > .01) :
         diameter = q(whole + .5, 'ft')
+      else:
+        diameter = q(round(x["diameter"], 0), 'ft')
 
       areaC = DP.HeatTransferArea(self, hD=abs(x['qC'])).to('m**2').magnitude
       areaB = DP.HeatTransferArea(self, hD=x['qB'], condenser=False).to('m**2').magnitude
