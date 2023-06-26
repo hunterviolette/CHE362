@@ -3,7 +3,7 @@ from sympy.physics.units.util import convert_to
 from sympy.physics.units import mol, m, second, hour
 import sympy.abc as cnst
 import pint
-from math import log
+from math import log, modf, pi
 
 from numpy import arange
 from numpy.random import random
@@ -572,7 +572,6 @@ class Distillation():
 
   @staticmethod
   def Solve_DB(f_, xF, xD, xB):
-
     b_, d_ = symbols('B'), symbols('D')
     soln = solve((
                     Eq( 
@@ -586,23 +585,107 @@ class Distillation():
                   ),
                   (b_, d_)
                 )
-    print(f"Flow rates: {soln}")
-    return soln[b_], soln[d_]
+    b_ = q(soln[b_]  * hour / mol, 'mol/h').to('kmol/h')
+    d_ = q(soln[d_]  * hour / mol, 'mol/h').to('kmol/h')
+    
+    print(
+          f"Bottoms flow rate: {b_}",
+          f"Distillate flow rate: {d_}",
+          sep='\n'
+        )
+    return b_, d_
   
   @staticmethod
-  def Solve_Rmin(xD, yF, xF, r_Scalar: float = 1):
+  def Solve_Rmin(xD, zF, xx, satLiquid: bool = True):
     Rmin = symbols('R')
-    Rmin = solve( 
-                  Eq(
-                    Rmin / (Rmin + 1), 
-                    (xD - yF) / (xD - xF)
-                  ),
-                  Rmin
-                )[0]
-    r_ = Rmin * r_Scalar
-    print(f"Rmin: {Rmin}, R: {r_}")
-    return r_
+    if satLiquid:
+      Rmin = solve( 
+                    Eq(
+                      Rmin / (Rmin + 1), 
+                      (xD - xx) / (xD - zF)
+                    ),
+                    Rmin
+                  )[0]
+      print(f"Rmin satLiq: {Rmin}")
 
+    else:
+      Rmin = solve( 
+                    Eq(
+                      Rmin / (Rmin + 1), 
+                      (xD - zF) / (xD - xx)
+                    ),
+                    Rmin
+                  )[0] 
+      print(f"Rmin satVap: {Rmin}")
+    return Rmin
+  
+  @staticmethod
+  def Distillation_Diameter(
+                    mW: pint.Quantity,
+                    rhoV: pint.Quantity,
+                    rhoL: pint.Quantity,
+                    sigma: float, # surface tension dyne/cm
+                    percentFlood: float,
+                    activeArea: float,
+                    r_: float, 
+                    d_: pint.Quantity
+                  ):
+    #### Input vars
+    mW = q(86.3, 'g/mol')
+    rhoV= q(3.07, 'kg/m**3').to('kg/m**3') 
+    rhoL = q(615, 'kg/m**3').to('kg/m**3') 
+
+    sigma = 13.3 # dyne / cm
+    percFlood, activeArea = .75, .8
+    ####
+
+    f_LV = (r_ / (r_ + 1)) * (rhoV / rhoL)**.5
+    kV = q(10**(-.94506 - .70234 * log(f_LV, 10) - .22618 * log(f_LV, 10)**2), 'ft/s')
+
+    uC = (kV * (sigma / 20)**.2 * ((rhoL - rhoV) / rhoV)**.5).to('ft/s')
+    uO = uC * percFlood
+
+    v_ = d_ * (r_ + 1)
+    vDot = (v_ * mW / rhoV).to('ft**3/s')
+
+    area = (vDot / uO).to('ft**2')
+    actualArea = area / activeArea
+    diameter = (4 * actualArea / pi)**.5
+
+    frac, whole = modf(diameter.magnitude)
+    if frac >= 0.5:
+      diameter = round(diameter, 0)
+    elif (frac < 0.5) and (frac > .01):
+      diameter = q(whole + .5, 'ft')
+    else:
+      diameter = round(diameter, 0)
+
+    print( 
+        f"==== Diameter Calculations ====",
+        f"F_LV: {f_LV}",
+        f"kV: {kV}",
+        f"uC: {uC}", 
+        f"uO: {uO}", 
+        f"V: {v_}",
+        f"Vdot: {vDot}", 
+        f"area: {area}", 
+        f"actual area: {actualArea}", 
+        f"diameter: {diameter}", 
+        sep='\n')
+    
+    return diameter
+
+  @staticmethod
+  def Real_Stages(idealStages: float, eta: float):
+    frac, whole = modf(idealStages / eta)
+    if frac >= 0.5:
+      stagesReal = whole + 1
+    elif (frac < 0.5) and (frac > .01) :
+      stagesReal = whole + 1
+    else:
+      stagesReal = whole  
+    return stagesReal
+  
 class CHE362(Diffusion, MassTransfer, Util, Distillation):
   pass
 
