@@ -32,7 +32,7 @@ class E3(CHE362):
   def Two():
     
     f_ = 250 * mol/hour
-    xF, xD, xB,  = .3, .99, .01
+    xF, xD, xB,  = .9, .99, .01
     
     b_, d_ = E3.Solve_DB(f_, xF, xD, xB)
     d_ = q(d_.magnitude, 'lbmol/h')
