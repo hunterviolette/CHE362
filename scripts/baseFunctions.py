@@ -126,64 +126,6 @@ class Diffusion():
     return d_AB
 
 class MassTransfer():
-  '''
-  mass flux = mass transfer coefficent * concentration driving force
-  mf = mtc * c
-
-  low mass transfer rates (dilute mixture of A):
-    n_A = k_x * delta_xA
-      WHERE k_x units are length/time
-
-  high mass transfer rates (diffusion of A through non-diffusing B)
-    n_A = k_x * log((1 - x_A2) / (1 - x_A1))
-      where k_x units are mols/cm**2
-
-  other forms of mtc:
-    Gases: 
-      n_A = k_p * delta_pA = k_y * delta_yA = k_c * delta_cA = k_c * c * delta_yA
-        pA: partial pressure of A
-
-    Liquids:
-      n_A = k_x * delta_xA = k_c * delta_cA
-
-  converting b/w forms of mtc:
-    Gases:
-      low mass transfer:
-        k_y = k_c * (p / (R * t)) = k_p * P
-          k_y: gas mtc
-          p: pressure
-      
-      high mass transfer:
-        k_yy = k_G * (delta_pB / log(pB2 / pB1))
-        k_yy = (k_y * (delta_pB / log(pB2 / pB1))) / p
-        k_yy = k_c * ((delta_pB / log(pB2 / pB1) / (R * t))
-          
-    Liquids:
-      low mass transfer:
-        k_x = k_c * c
-          # k_x: liquid mtc
-          # c: molar concentration (mols/volume)
-
-      high mass transfer:
-        k_xx = k_x * (delta_xB / log(xB2 / xB1)
-        k_xx = k_L * (delta_xB / log(xB2 / xB1) * c
-
-  Re = (L * rho * v) / mu
-    # L: length, meter
-    # rho: density, kg/m**3
-    # v: velocity, m/s
-    # mu: viscosity, kg/(m*s)
-  
-  Sh_prime = (k_prime * L) / (c * d_AB)
-    # d_AB: diffusivity m**2/s
-
-  Sh = (k * L) / (c * d_AB) = (k_c * L) / d_AB
-
-  Sc = mu / (rho * d_AB)
-  
-  Le = Pr / Sc
-  
-  '''
 
   @staticmethod
   def ReynoldsNumber(L: pint.Quantity,
@@ -630,20 +572,12 @@ class Distillation():
                     r_: float, 
                     d_: pint.Quantity
                   ):
-    #### Input vars
-    mW = q(86.3, 'g/mol')
-    rhoV= q(3.07, 'kg/m**3').to('kg/m**3') 
-    rhoL = q(615, 'kg/m**3').to('kg/m**3') 
-
-    sigma = 13.3 # dyne / cm
-    percFlood, activeArea = .75, .8
-    ####
 
     f_LV = (r_ / (r_ + 1)) * (rhoV / rhoL)**.5
     kV = q(10**(-.94506 - .70234 * log(f_LV, 10) - .22618 * log(f_LV, 10)**2), 'ft/s')
 
     uC = (kV * (sigma / 20)**.2 * ((rhoL - rhoV) / rhoV)**.5).to('ft/s')
-    uO = uC * percFlood
+    uO = uC * percentFlood
 
     v_ = d_ * (r_ + 1)
     vDot = (v_ * mW / rhoV).to('ft**3/s')
@@ -685,6 +619,14 @@ class Distillation():
     else:
       stagesReal = whole  
     return stagesReal
+  
+  @staticmethod
+  def Vaporization_Slope(vapPercent):
+    return (1 / vapPercent) -1
+  
+  @staticmethod
+  def Vaporization_SlopeCheck(y2: float, y1: float, x2: float, x1: float):
+    return (y2 - y1) / (x2 - x1)
   
 class CHE362(Diffusion, MassTransfer, Util, Distillation):
   pass
