@@ -14,6 +14,8 @@ import pandas as pd
 
 uReg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
+uReg.define('lbmol = 1 * mol')
+
 q  = uReg.Quantity
 
 class Diffusion():
@@ -527,8 +529,8 @@ class Distillation():
                   ),
                   (b_, d_)
                 )
-    b_ = q(soln[b_]  * hour / mol, 'mol/h').to('kmol/h')
-    d_ = q(soln[d_]  * hour / mol, 'mol/h').to('kmol/h')
+    b_ = q(soln[b_]  * hour / mol, 'mol/h')
+    d_ = q(soln[d_]  * hour / mol, 'mol/h')
     
     print(
           f"Bottoms flow rate: {b_}",
