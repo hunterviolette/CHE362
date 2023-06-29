@@ -1,6 +1,5 @@
 from pint import UnitRegistry
 from sympy.physics.units import mol, hour
-from math import log, modf, pi
 
 from baseFunctions import CHE362
 
@@ -58,50 +57,21 @@ class E3(CHE362):
           f"Minimum stages: {minStages}",
           f"Ideal stages: {stagesIdeal}",
           f"Feed stage: {3}",
+          f"Real stages: {E3.Real_Stages(stagesIdeal, eta)}",
           sep='\n'
         )
 
-    mW = q(106.4, 'lb/lbmol')
-    rhoV = q(.197, 'lb/ft**3')
-    rhoL = q(47.5, 'lb/ft**3')
-    sigma = 16.7 # dyne / cm,
-    percentFlood = .70
-    activeArea= .8
-
-    f_LV = (r_ / (r_ + 1)) * (rhoV / rhoL)**.5
-    kV = q(10**(-.94506 - .70234 * log(f_LV, 10) - .22618 * log(f_LV, 10)**2), 'ft/s')
-
-    uC = (kV * (sigma / 20)**.2 * ((rhoL - rhoV) / rhoV)**.5).to('ft/s')
-    uO = uC * percentFlood
-
-    v_ = d_ * (r_ + 1)
-    vDot = (v_ * mW / rhoV).to('ft**3/s')
-
-    area = (vDot / uO).to('ft**2')
-    actualArea = area / activeArea
-    diameter = (4 * actualArea / pi)**.5
-
-    frac, whole = modf(diameter.magnitude)
-    if frac >= 0.5:
-      diameter = round(diameter, 0)
-    elif (frac < 0.5) and (frac > .01):
-      diameter = q(whole + .5, 'ft')
-    else:
-      diameter = round(diameter, 0)
-
-    print( 
-        f"==== Diameter Calculations ====",
-        f"F_LV: {f_LV}",
-        f"kV: {kV}",
-        f"uC: {uC}", 
-        f"uO: {uO}", 
-        f"V: {v_}",
-        f"Vdot: {vDot}", 
-        f"area: {area}", 
-        f"actual area: {actualArea}", 
-        f"diameter: {diameter}", 
-        sep='\n')
-    
+    E3.Distillation_Diameter(
+      mW = q(106.4, 'lb/lbmol'),
+      rhoV = q(.197, 'lb/ft**3'),
+      rhoL = q(47.5, 'lb/ft**3'),
+      sigma = 16.7, # dyne / cm
+      percentFlood = .70,
+      activeArea= .8,
+        r_ = r_,
+        d_ = q(d_.to('mol/h').magnitude, 'mol/h'),
+        q_ = q
+      )
 
 
 E3.One()

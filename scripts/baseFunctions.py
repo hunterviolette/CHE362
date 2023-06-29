@@ -496,7 +496,7 @@ class Util(SeparationProcesses):
   @staticmethod
   def Generate_YX_Diagram(df: pd.DataFrame):
     fig = px.line(df, df['xVal'], df['yVal'])
-    fig.add_trace(Util.FortyFiveLine())
+    #fig.add_trace(Util.FortyFiveLine())
 
     return fig.update_layout(
             xaxis=dict(
@@ -572,11 +572,12 @@ class Distillation():
                     percentFlood: float,
                     activeArea: float,
                     r_: float, 
-                    d_: pint.Quantity
+                    d_: pint.Quantity,
+                    q_ # Unit registry 
                   ):
 
     f_LV = (r_ / (r_ + 1)) * (rhoV / rhoL)**.5
-    kV = q(10**(-.94506 - .70234 * log(f_LV, 10) - .22618 * log(f_LV, 10)**2), 'ft/s')
+    kV = q_(10**(-.94506 - .70234 * log(f_LV, 10) - .22618 * log(f_LV, 10)**2), 'ft/s')
 
     uC = (kV * (sigma / 20)**.2 * ((rhoL - rhoV) / rhoV)**.5).to('ft/s')
     uO = uC * percentFlood
