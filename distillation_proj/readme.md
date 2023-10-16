@@ -1,6 +1,6 @@
 # Distillation Project
 
-## Overall Objectives [Problem Statement](assets/problem_statement.pdf)
+## Overall Objectives [(Problem Statement)](assets/problem_statement.pdf)
 ![Problem Statement](assets/problem_statement.png)
 
 # Base Case
@@ -19,7 +19,7 @@
 
 ## [Solution](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
   - [Export Data](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.csv)
-  - [Export Figures (Open with any browser)](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.html)
+  - [Export Figures (open with any browser)](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.html)
 
 ![Reflux vs EAOC](assets/rr_vs_eaoc.png)
 ![Reflux vs AUC](assets/rr_vs_auc.png)
