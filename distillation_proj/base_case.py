@@ -4,7 +4,10 @@ from math import pi, log
 import pint
 import pandas as pd
 
-from ..scripts.baseFunctions import CHE362
+from sys import path
+path.append('..')
+from scripts.baseFunctions import CHE362
+
 
 uReg = pint.UnitRegistry(autoconvert_offset_to_baseunit = True)
 uReg.default_format = "~P"
@@ -23,7 +26,7 @@ class DP(CHE362):
     yF, yD, yB = .533, .99, .01
 
     self.b_, self.d_ = DP.Solve_DB(f_, xF, xD, xB)
-    self.r_ = DP.Solve_Rmin(xD, yF, xF, 1.2)
+    self.r_ = DP.Solve_Rmin(xD, yF, xF, False) * 1.2
     
     if plot:
       fig = DP.Generate_YX_Diagram(pd.read_csv('base_case_raw.csv'))
@@ -37,7 +40,7 @@ class DP(CHE362):
 
   def Area(self, steamTemp: pint.Quantity = q(185.477, 'degC')):
     DP.XY_Diagram(self, False)
-    self.d_ = q(self.d_ * hour / mol, 'mol/h')
+    self.d_ = q(self.d_.magnitude, 'mol/h')
 
     t_CWI, t_CWO = q(30, 'degC'), q(45, 'degC')
     t_D, t_B, t_ST = q(80, 'degC'), q(136, 'degC'), steamTemp
@@ -94,6 +97,7 @@ class DP(CHE362):
     vDot = (v_ * mW / rhoV).to('ft**3/s')
 
     area = (vDot / uO).to('ft**2')
+    print(f"area: {area}:::: {self.d_}")
     actualArea = area / activeArea
     self.d = (4 * actualArea / pi)**.5
 
@@ -160,7 +164,7 @@ class DP(CHE362):
           f"cost: capital {capCost}", 
           f"annual: operating cost {opCost}", 
           f"5-yr annual: total cost: {eAOC}", 
-          f"annual: steam cost: {steamAOC}", 
+          f"Steam cost / total cost: {steamAOC.magnitude}", 
         sep='\n')
 
 DP().Economics()
