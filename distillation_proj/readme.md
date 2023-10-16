@@ -1,9 +1,6 @@
 # Distillation Project
 
-## Overall Objective
-
-[Link to problem statement (PDF)](assets/problem_statement.pdf)
-
+## Overall Objectives [Problem Statement](assets/problem_statement.pdf)
 ![Problem Statement](assets/problem_statement.png)
 
 # Base Case
@@ -18,7 +15,7 @@
 ![Aspen Simulation Statement](assets/aspen_statement.png)
 
 - Generate input data by iterating over the number of trays and feed tray in Aspen
-- ![Aspen Simulation Input](assets/main_input.png)
+![Aspen Simulation Input](assets/main_input.png)
 
 ## [Solution](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
   - [Export Data](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.csv)
