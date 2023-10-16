@@ -6,24 +6,21 @@
 
 ![Problem Statement](assets/problem_statement.png)
 
-## Base Case
-
+# Base Case
+## Problem Statement
 ![Base Case Statement](assets/base_case_statement.png)
 
-[Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/base_case.py)
-
+## [Solution](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/base_case.py)
 ![Base Case Results](assets/base_results.png)
 
 # Finding Economic Optimum
-
+## Problem Statement
 ![Aspen Simulation Statement](assets/aspen_statement.png)
 
 - Generate input data by iterating over the number of trays and feed tray in Aspen
+- ![Aspen Simulation Input](assets/main_input.png)
 
-## Input data from Aspen
-![Aspen Simulation Input](assets/main_input.png)
-
-## [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
+## [Solution](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
   - [Export Data](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.csv)
   - [Export Figures (Open with any browser)](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.html)
 
