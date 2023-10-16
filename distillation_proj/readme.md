@@ -14,12 +14,13 @@
 
 ![Base Case Results](assets/base_results.png)
 
-## Aspen Simulation and Optimum
+# Aspen Simulation and Optimum
 
 ![Aspen Simulation Statement](assets/aspen_statement.png)
 
 - Generate input data by iterating over the number of trays and feed tray in Aspen
 
+## Input data from Aspen
 ![Aspen Simulation Input](assets/main_input.png)
 
 ## Results
