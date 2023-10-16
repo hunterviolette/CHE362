@@ -16,7 +16,7 @@
 
 ## Aspen Simulation and Optimum
 
-![Aspen Simulation Statement](assets/base_case_statement.png)
+![Aspen Simulation Statement](assets/aspen_statement.png)
 
 - Generate input data by iterating over the number of trays and feed tray in Aspen
 
@@ -24,9 +24,10 @@
 
 [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
 
-- Result:
+## Results
   - [Export Data](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main_export.csv)
   - [Export Figures](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main_figures.html)
-    - ![Reflux vs EAOC](assets/rr_vs_eaoc.png)
-    - ![Reflux vs AUC](assets/rr_vs_auc.png)
-    - ![Reflux vs ACC](assets/rr_vs_acc.png)
+  
+![Reflux vs EAOC](assets/rr_vs_eaoc.png)
+![Reflux vs AUC](assets/rr_vs_auc.png)
+![Reflux vs ACC](assets/rr_vs_acc.png)
