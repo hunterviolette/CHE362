@@ -84,11 +84,7 @@ class HW4(CHE362):
     oKX, oKY = HW4.SOLVE_OVERALL_MTC(
                           kX,
                           kY,
-                          HW4.Slope_OMTC(vpA, p,
-                                          lawUsed='raoults',
-                                          idealSolution=False,
-                                          gamma=1.725
-                                        ),
+                          HW4.Slope_OMTC(vpA, p, gamma=1.725),
                           symbols('oK'),
                           symbols('oK'),
                         )
@@ -180,18 +176,13 @@ class HW4(CHE362):
                               kY, # mtc of phase y
                             )
     
-    nAX = HW4.FluxBetweenPhases(
-                              xxI = xI,
-                              xxB= xB,
-                              k = kX,
-                              phase = 'x'
-                            ) 
+    nAX = HW4.FluxBetweenPhases(xB, xI, yB, yI, kX, kY)
+
 
     oKX, oKY = HW4.SOLVE_OVERALL_MTC(
                           kX,
                           kY,
-                          He,
-                          p,
+                          HW4.Slope_OMTC(He, p),
                           symbols('oK'),
                           symbols('oK'),
                         )
@@ -204,5 +195,9 @@ class HW4(CHE362):
                     )
 
 
+
 h = HW4()
+h.One()
 h.Two()
+h.Three()
+

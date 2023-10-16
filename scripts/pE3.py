@@ -1,6 +1,6 @@
 from pint import UnitRegistry
 from sympy.physics.units import mol, hour
-from math import log, modf
+from math import log, modf, pi
 
 from baseFunctions import CHE362
 
@@ -39,12 +39,14 @@ class PE3(CHE362):
           sep='\n'
         )
 
-    mW = q(86.3, 'g/mol'),
-    rhoV = q(3.07, 'kg/m**3').to('kg/m**3'),
-    rhoL = q(615, 'kg/m**3').to('kg/m**3'),
-    sigma = 13.3, # dyne / cm,
-    percentFlood = .75,
-    activeArea= .8,
+    mW = q(86.3, 'g/mol')
+    rhoV = q(3.07, 'kg/m**3')
+    rhoL = q(615, 'kg/m**3')
+    sigma = 13.3 # dyne / cm,
+    percentFlood = .75
+    activeArea= .8
+
+    print(r_, rhoV, rhoL)
 
     f_LV = (r_ / (r_ + 1)) * (rhoV / rhoL)**.5
     kV = q(10**(-.94506 - .70234 * log(f_LV, 10) - .22618 * log(f_LV, 10)**2), 'ft/s')
@@ -52,7 +54,7 @@ class PE3(CHE362):
     uC = (kV * (sigma / 20)**.2 * ((rhoL - rhoV) / rhoV)**.5).to('ft/s')
     uO = uC * percentFlood
 
-    v_ = d_ * (r_ + 1)
+    v_ = q((d_ * (r_ + 1)).magnitude, 'mol/h')
     vDot = (v_ * mW / rhoV).to('ft**3/s')
 
     area = (vDot / uO).to('ft**2')
@@ -66,5 +68,7 @@ class PE3(CHE362):
       diameter = q(whole + .5, 'ft')
     else:
       diameter = round(diameter, 0)
+
+    print(f"Column diameter: {diameter}")
 
 PE3.Two()
