@@ -12,7 +12,7 @@
 ![HW3_SOL](assets/hw3.png)
 
 # Homework 4
-## [Problem Statement](https://github.com/hunterviolette/CHE362/blob/master/problem_statements/HW4.pdf)
+## [Problem Statement](https://github.com/hunterviolette/CHE362/blob/master/problem_statements/HW4%20.pdf)
 ![HW4_PS](assets/hw4_ps.png)
 ## [Solution](https://github.com/hunterviolette/CHE362/blob/master/scripts/hw4.py)
 ![HW4_SOL](assets/hw4.png)
