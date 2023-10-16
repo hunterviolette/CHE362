@@ -14,7 +14,7 @@
 
 ![Base Case Results](assets/base_results.png)
 
-# Aspen Simulation and Optimum
+# Finding Economic Optimum
 
 ![Aspen Simulation Statement](assets/aspen_statement.png)
 
@@ -23,8 +23,7 @@
 ## Input data from Aspen
 ![Aspen Simulation Input](assets/main_input.png)
 
-## Results
-  - [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
+## [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
   - [Export Data](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.csv)
   - [Export Figures (Open with any browser)](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.html)
 
