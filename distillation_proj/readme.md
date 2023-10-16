@@ -22,12 +22,11 @@
 
 ![Aspen Simulation Input](assets/main_input.png)
 
-[Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
-
 ## Results
+  - [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
   - [Export Data](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main_export.csv)
   - [Export Figures](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main_figures.html)
-  
+
 ![Reflux vs EAOC](assets/rr_vs_eaoc.png)
 ![Reflux vs AUC](assets/rr_vs_auc.png)
 ![Reflux vs ACC](assets/rr_vs_acc.png)
