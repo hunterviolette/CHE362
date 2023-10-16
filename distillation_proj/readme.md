@@ -12,7 +12,7 @@
 
 [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/base_case.py)
 
-- Result: ![Base Case Results](assets/base_results.png)
+![Base Case Results](assets/base_results.png)
 
 ## Aspen Simulation and Optimum
 
