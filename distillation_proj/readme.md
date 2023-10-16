@@ -25,7 +25,7 @@
 ## Results
   - [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
   - [Export Data](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main_export.csv)
-  - [Export Figures](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main_figures.html)
+  - [Export Figures (Open with any browser)](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main_figures.html)
 
 ![Reflux vs EAOC](assets/rr_vs_eaoc.png)
 ![Reflux vs AUC](assets/rr_vs_auc.png)
