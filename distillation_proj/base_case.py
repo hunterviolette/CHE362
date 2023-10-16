@@ -97,7 +97,6 @@ class DP(CHE362):
     vDot = (v_ * mW / rhoV).to('ft**3/s')
 
     area = (vDot / uO).to('ft**2')
-    print(f"area: {area}:::: {self.d_}")
     actualArea = area / activeArea
     self.d = (4 * actualArea / pi)**.5
 

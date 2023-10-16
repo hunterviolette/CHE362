@@ -10,7 +10,15 @@
 
 ![Base Case Statement](assets/base_case_statement.png)
 
-
 ### [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/base_case.py) Result
 
-![Base Case Results](assets/base_results.png)
+- ![Base Case Results](assets/base_results.png)
+
+## Aspen Simulation and Optimum
+
+![Aspen Simulation Statement](assets/base_case_statement.png)
+
+- Generate input data by iterating over number of trays and feed tray in Aspen
+
+- ![Aspen Simulation Statement](assets/main_input.png)
+
