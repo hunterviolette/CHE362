@@ -2,7 +2,7 @@
 
 ## Overall Objective
 
-[Link to problem statement (PDF)](problem_statement.pdf)
+[Link to problem statement (PDF)](assets/problem_statement.pdf)
 
 ![Problem Statement](assets/problem_statement.png)
 
@@ -24,8 +24,8 @@
 
 ## Results
   - [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py)
-  - [Export Data](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main_export.csv)
-  - [Export Figures (Open with any browser)](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main_figures.html)
+  - [Export Data](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.csv)
+  - [Export Figures (Open with any browser)](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/export/main.html)
 
 ![Reflux vs EAOC](assets/rr_vs_eaoc.png)
 ![Reflux vs AUC](assets/rr_vs_auc.png)

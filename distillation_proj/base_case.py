@@ -29,7 +29,7 @@ class DP(CHE362):
     self.r_ = DP.Solve_Rmin(xD, yF, xF, False) * 1.2
     
     if plot:
-      fig = DP.Generate_YX_Diagram(pd.read_csv('base_case_raw.csv'))
+      fig = DP.Generate_YX_Diagram(pd.read_csv('import/base_case.csv'))
       fig.add_vline(x=xF, line_dash="dot", annotation_text="Feed line", annotation_font_color="white")
       
       lines = []

@@ -49,7 +49,7 @@ class DP(CHE362):
     self.fP, self.fM, self.eta = 1, 1, .75
     self.traySpacing = q(2, 'ft')
 
-    df = pd.read_csv('main_raw.csv')
+    df = pd.read_csv('import/main.csv')
     self.df = df[df.converged == True] 
 
   def HeatTransferArea(self, hD, condenser: bool = True):
@@ -165,7 +165,7 @@ class DP_ANALYSIS():
 
     fdf["annualized capX"] = fdf["total capital cost"] / 5
     self.df = fdf.round(3).sort_values(by='reflux ratio')
-    self.df.to_csv('main_export.csv')
+    self.df.to_csv('export/main.csv')
   
   def FigGenerator(self, xVal:str, yVal: str):
     fig = px.scatter(self.df, 
@@ -227,6 +227,6 @@ class DP_ANALYSIS():
 
     fig.update_layout(hovermode="x unified", template='plotly_dark', height=2400)
 
-    save_plot(fig, filename='main_figures.html')
+    save_plot(fig, filename='export/main.html')
 
 DP_ANALYSIS().Graphs()
