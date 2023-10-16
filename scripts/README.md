@@ -22,9 +22,9 @@
 # Practice Exam 1
 ## [Problem Statement](https://github.com/hunterviolette/CHE362/blob/master/problem_statements/PE1.pdf)
 ![PE1_PS](assets/pe1_ps.png)
-## [Solution](https://github.com/hunterviolette/CHE362/blob/master/scripts/pE1.py)
-![PE1_SOL](assets/pe1_ps.png)
 ![PE1_SOL_2](assets/pe1_ps_2.png)
+## [Solution](https://github.com/hunterviolette/CHE362/blob/master/scripts/pE1.py)
+![PE1_SOL](assets/pe1.png)
 
 # Practice Exam 3
 ## [Problem Statement](https://github.com/hunterviolette/CHE362/blob/master/problem_statements/PE3.pdf)
