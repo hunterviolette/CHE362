@@ -22,3 +22,6 @@
 
 - ![Aspen Simulation Statement](assets/main_input.png)
 
+### [Script](https://github.com/hunterviolette/CHE362/blob/master/distillation_proj/main.py) Result
+
+
